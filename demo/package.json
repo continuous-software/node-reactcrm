@@ -1,0 +1,14 @@
+{
+  "description": "A simple storefront using the Node SDK.",
+  "main": "index",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amine Mouafik",
+  "license": "No license",
+  "dependencies": {
+    "express": "~4.4.5",
+    "ejs": "~1.0.0",
+    "body-parser": "~1.4.3"
+  }
+}
