@@ -1,25 +1,31 @@
 {
-  "name": "continuouscrm",
-  "version": "1.0.0",
-  "description": "Development kit for ContinuoursCRM integration.",
+  "author": "Amine Mouafik <amine@mouafik.fr>",
+  "name": "reactcrm",
+  "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
+  "version": "0.0.1",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/continuous-software/node-reactcrm"
+  },
   "scripts": {
     "test": "mocha --reporter spec"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://bitbucket.org/continuouscrm/sdk/"
+  "keywords": {
+    "crm",
+    "storefront"
+    "gateway",
+    "payment",
   },
-  "author": "Amine Mouafik <amine@mouafik.fr>",
-  "license": "BSD-2-Clause",
-  "devDependencies": {
-    "should": "~4.0.4",
-    "mocha": "~1.20.1"
-  },
+  "license": "MIT",
   "dependencies": {
     "request": "~2.37.0",
     "paypal-rest-sdk": "~0.9.3",
     "rocketgate": "0.0.1",
     "virtualmerchant": "0.0.1"
+  }
+  "devDependencies": {
+    "should": "~4.0.4",
+    "mocha": "~1.20.1"
   }
 }
