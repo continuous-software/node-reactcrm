@@ -5,7 +5,7 @@ var rocketgate = require('rocketgate');
 
 module.exports = NodeSDK;
 
-NodeSDK.API_ENDPOINT = 'http://localhost:8080/api';
+NodeSDK.API_ENDPOINT = 'http://localhost:8001/api';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -118,6 +118,7 @@ NodeSDK.prototype.processOrder = function(order, prospect, callback) {
     campaign_id: 1
   };
   var self = this;
+  order.prospect_id = prospect.id;
   service.PerformPurchase(request, response, function(status) {
     if (status) {
       console.log("Purchase succeeded");
@@ -138,11 +139,11 @@ NodeSDK.prototype.processOrder = function(order, prospect, callback) {
       });
     }
     else {
+      order.status = 'failed';
+      order.token = '';
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
         callback && callback("Purchase failed!");
       });
-      order.status = 'failed';
-      order.token = '';
       console.log("Purchase failed");
       console.log("GUID: " + response.Get(GatewayResponse.TRANSACT_ID));
       console.log("Response Code: " + response.Get(GatewayResponse.RESPONSE_CODE));
