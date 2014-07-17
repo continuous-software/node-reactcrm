@@ -5,7 +5,7 @@ var rocketgate = require('rocketgate');
 
 module.exports = NodeSDK;
 
-NodeSDK.API_ENDPOINT = 'http://localhost:8001/api';
+NodeSDK.API_ENDPOINT = 'http://api.reactcrm.com/api';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
