@@ -2,6 +2,7 @@
 
 var request = require('request');
 var rocketgate = require('rocketgate');
+var virtualmerchant = require('virtualmerchant');
 
 module.exports = NodeSDK;
 
@@ -83,6 +84,7 @@ NodeSDK.prototype.processOrder = function(options, order, prospect, callback) {
   var req = require('request');
   console.log('[react] processing order: %s', JSON.stringify(order));
   this.processOrderWithRocketgate(options, order, prospect, callback);
+  //this.processOrderWithVirtualMerchant(options, order, prospect, callback);
 };
 
 NodeSDK.prototype.processOrderWithRocketgate = function(options, order, prospect, callback) {
@@ -149,6 +151,30 @@ NodeSDK.prototype.processOrderWithRocketgate = function(options, order, prospect
       console.log("Reason Code: " + response.Get(GatewayResponse.REASON_CODE));
       console.log("Exception: " + response.Get(GatewayResponse.EXCEPTION));
       console.log("Scrub: " + response.Get(GatewayResponse.SCRUB_RESULTS));
+    }
+  });
+};
+
+NodeSDK.prototype.processOrderWithVirtualMerchant = function(options, order, prospect, callback) {
+  var gateway = new virtualmerchant({
+    merchant_id: options.merchant_id,
+    user_id: options.user_id,
+    ssl_pin: options.ssl_pin,
+    test_mode: false
+  });
+  gateway.doPurchase({
+    card_number: order.number,
+    exp_date: order.expiry.split(' / ').join(''),
+    amount: '0.42'
+  }, function(error, result) {
+    if (error)
+      return callback && callback(error);
+    try {
+      result = JSON.parse(result);
+      return callback && callback(null, result.ssl_txn_id);
+    }
+    catch(e) {
+      return callback(result);
     }
   });
 };
