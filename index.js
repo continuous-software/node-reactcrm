@@ -5,7 +5,7 @@ var rocketgate = require('rocketgate');
 
 module.exports = NodeSDK;
 
-NodeSDK.API_ENDPOINT = 'http://api.reactcrm.com/api';
+NodeSDK.API_ENDPOINT = 'http://localhost:8001/api';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -79,46 +79,45 @@ NodeSDK.prototype.registerProspect = function(prospect, callback) {
   });
 };
 
-NodeSDK.prototype.processOrder = function(order, prospect, callback) {
+NodeSDK.prototype.processOrder = function(options, order, prospect, callback) {
   var req = require('request');
   console.log('[react] processing order: %s', JSON.stringify(order));
+  this.processOrderWithRocketgate(options, order, prospect, callback);
+};
+
+NodeSDK.prototype.processOrderWithRocketgate = function(options, order, prospect, callback) {
   var GatewayService = rocketgate.GatewayService;
   var GatewayRequest = rocketgate.GatewayRequest;
   var GatewayResponse = rocketgate.GatewayResponse;
   var service = new GatewayService();
   var request = new GatewayRequest();
   var response = new GatewayResponse();
-  request.Set(GatewayRequest.MERCHANT_ID, 1401371620);
-  request.Set(GatewayRequest.MERCHANT_PASSWORD, "GEULa5YcegqDx5xQ");
-  request.Set(GatewayRequest.CARDNO, order.card_number);
-  request.Set(GatewayRequest.EXPIRE_MONTH, order.card_expiration_month);
-  request.Set(GatewayRequest.EXPIRE_YEAR, order.card_expiration_year);
+  request.Set(GatewayRequest.MERCHANT_ID, options.merchant_id);
+  request.Set(GatewayRequest.MERCHANT_PASSWORD, options.merchant_password);
+  request.Set(GatewayRequest.CARDNO, order.number.trim());
+  var expiry = order.expiry.split('/');
+  request.Set(GatewayRequest.EXPIRE_MONTH, expiry[0].trim());
+  request.Set(GatewayRequest.EXPIRE_YEAR, expiry[1].trim());
   request.Set(GatewayRequest.AMOUNT, 42.00);
-  request.Set(GatewayRequest.MERCHANT_CUSTOMER_ID, "ReactCRMCust.1");
+  request.Set(GatewayRequest.MERCHANT_CUSTOMER_ID, prospect.id);
   request.Set(GatewayRequest.MERCHANT_INVOICE_ID, "ReactCRMInv-1");
   request.Set(GatewayRequest.CUSTOMER_FIRSTNAME, prospect.firstname);
   request.Set(GatewayRequest.CUSTOMER_LASTNAME, prospect.lastname);
-  request.Set(GatewayRequest.BILLING_ADDRESS, prospect.address);
+  request.Set(GatewayRequest.BILLING_ADDRESS, prospect.address1);
   request.Set(GatewayRequest.BILLING_CITY, prospect.city);
   request.Set(GatewayRequest.BILLING_STATE, prospect.state);
   request.Set(GatewayRequest.BILLING_ZIPCODE, prospect.zipcode);
   request.Set(GatewayRequest.BILLING_COUNTRY, prospect.country);
   request.Set(GatewayRequest.AVS_CHECK, "IGNORE");
-  request.Set(GatewayRequest.CVV2, order.card_cvv2);
+  request.Set(GatewayRequest.CVV2, order.cvc);
   request.Set(GatewayRequest.CVV2_CHECK, "IGNORE");
   request.Set(GatewayRequest.EMAIL, prospect.email);
   request.Set(GatewayRequest.IPADDRESS, "68.224.133.117");
   request.Set(GatewayRequest.SCRUB, "IGNORE");
   service.SetTestMode(true);
-  order =  {
-    prospect_id: 1,
-    merchant_id: 1,
-    offer_id: 1,
-    product_id: 1,
-    campaign_id: 1
-  };
   var self = this;
   order.prospect_id = prospect.id;
+  console.log(prospect);
   service.PerformPurchase(request, response, function(status) {
     if (status) {
       console.log("Purchase succeeded");
@@ -135,7 +134,7 @@ NodeSDK.prototype.processOrder = function(order, prospect, callback) {
       order.status = 'success';
       order.token = response.Get(GatewayResponse.CARD_HASH);
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(null, "success");
+        callback && callback(null, response.Get(GatewayResponse.TRANSACT_ID));
       });
     }
     else {
