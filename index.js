@@ -74,6 +74,8 @@ NodeSDK.prototype.initialize = function(callback) {
 
 
 NodeSDK.prototype.registerProspect = function(prospect, callback) {
+  prospect.billing = JSON.stringify(prospect.billing);
+  prospect.shipping = JSON.stringify(prospect.shipping);
   console.log('[react] registering prospect: %s', JSON.stringify(prospect));
   this.process(NodeSDK.ACTION_ADD_PROSPECT, prospect, function(error, result) {
     callback && callback(error, result);
@@ -133,15 +135,15 @@ NodeSDK.prototype.processOrderWithRocketgate = function(options, order, prospect
       console.log("CardIssuer: " + response.Get(GatewayResponse.CARD_ISSUER_NAME));
       console.log("Account: " + response.Get(GatewayResponse.MERCHANT_ACCOUNT));
       console.log("Scrub: " + response.Get(GatewayResponse.SCRUB_RESULTS));
-      order.status = 'success';
+      order.billing_status = 'success';
+      order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
       order.token = response.Get(GatewayResponse.CARD_HASH);
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(null, response.Get(GatewayResponse.TRANSACT_ID));
+        callback && callback(null, order.transaction_id);
       });
     }
     else {
-      order.status = 'failed';
-      order.token = '';
+      order.billing_status = 'failed';
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
         callback && callback("Purchase failed!");
       });
