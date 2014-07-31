@@ -6,7 +6,7 @@ var virtualmerchant = require('virtualmerchant');
 
 module.exports = NodeSDK;
 
-NodeSDK.API_ENDPOINT = 'http://localhost:8001/api';
+NodeSDK.API_ENDPOINT = "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT + "/api";
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -14,13 +14,20 @@ NodeSDK.ACTION_ADD_PROSPECT = '/addProspect';
 NodeSDK.ACTION_ADD_ORDER = '/addOrder';
 
 function NodeSDK(apiKey, apiSecret, callback) {
+  console.log('wtf');
   var _this = this;
   _this.token = null;
   _this.storefront = null;
-  if (!apiKey || !apiSecret)
-    return {code: 1, message: 'Missing arguments'};
-  else if (typeof(apiKey) !== 'string' || typeof(apiSecret) !== 'string')
-    return {code: 2, message: 'Invalid arguments'};
+  if (!apiKey || !apiSecret) {
+    var error = {code: 1, message: 'Missing arguments'};
+    callback && callback(error);
+    return error;
+  }
+  else if (typeof(apiKey) !== 'string' || typeof(apiSecret) !== 'string') {
+    var error = {code: 2, message: 'Invalid arguments'};
+    callback && callback(error);
+    return error;
+  }
   else
     return _this.authenticate(apiKey, apiSecret, function(error, result) {
       if (error)
@@ -127,7 +134,7 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
       order.billing_status = 'completed';
       order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(null, order.transaction_id);
+        callback && callback(null, order);
       });
     }
     else {
