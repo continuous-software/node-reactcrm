@@ -1,31 +1,31 @@
 {
-    "author": "Amine Mouafik <amine@mouafik.fr>",
-    "name": "reactcrm",
-    "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
-    "version": "0.0.7",
-    "main": "index.js",
-    "repository": {
-                   "type": "git",
-                   "url": "https://github.com/continuous-software/node-reactcrm"
-                   },
-    "scripts": {
-                "test": "mocha --reporter spec"
-                },
-    "keywords": [
-                 "crm",
-                 "storefront",
-                 "gateway",
-                 "payment"
-                 ],
-    "license": "MIT",
-    "dependencies": {
-                     "paypal-rest-sdk": "~0.9.3",
-                     "request": "~2.37.0",
-                     "rocketgate": "0.0.1",
-                     "virtualmerchant": "0.0.1"
-                     },
-    "devDependencies": {
-                        "should": "~4.0.4",
-                        "mocha": "~1.20.1"
-                        }
-    }]
+  "author": "Amine Mouafik <amine@mouafik.fr>",
+  "name": "reactcrm",
+  "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
+  "version": "0.0.7",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/continuous-software/node-reactcrm"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "keywords": [
+    "crm",
+    "storefront",
+    "gateway",
+    "payment"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "paypal-rest-sdk": "~0.9.3",
+    "request": "~2.37.0",
+    "rocketgate": "0.0.1",
+    "virtualmerchant": "0.0.1"
+  },
+  "devDependencies": {
+    "should": "~4.0.4",
+    "mocha": "~1.20.1"
+  }
+}
