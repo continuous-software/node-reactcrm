@@ -6,7 +6,9 @@ var virtualmerchant = require('virtualmerchant');
 
 module.exports = NodeSDK;
 
-NodeSDK.API_ENDPOINT = "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT + "/api";
+NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
+  ? "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT + "/api"
+  : 'http://api.reactcrm.com/api';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -14,7 +16,6 @@ NodeSDK.ACTION_ADD_PROSPECT = '/addProspect';
 NodeSDK.ACTION_ADD_ORDER = '/addOrder';
 
 function NodeSDK(apiKey, apiSecret, callback) {
-  console.log('wtf');
   var _this = this;
   _this.token = null;
   _this.storefront = null;
