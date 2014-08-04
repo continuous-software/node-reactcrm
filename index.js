@@ -7,8 +7,8 @@ var virtualmerchant = require('virtualmerchant');
 module.exports = NodeSDK;
 
 NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
-  ? "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT + "/api"
-  : 'http://api.reactcrm.com/api';
+  ? "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT
+  : 'http://api.reactcrm.com';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -41,8 +41,8 @@ function NodeSDK(apiKey, apiSecret, callback) {
           return callback && callback(error);
         if (result.error)
           return callback && callback(result.error);
-        _this.storefront = result;
-        return callback && callback(null);
+        _this.storefront = result.campaign;
+        return callback && callback(null, _this.storefront);
       });
     });
 };
@@ -90,6 +90,22 @@ NodeSDK.prototype.registerProspect = function(prospect, callback) {
   });
 };
 
+NodeSDK.prototype.processOrder = function(processor, offer, prospect, creditcard, callback) {
+  if (processor.type == 'rocketgate')
+    this.processOrderWithRocketgate({
+      id: processor.id,
+      merchant_id: processor.rocketGate.merchant_id,
+      merchant_password: processor.rocketGate.merchant_password
+    }, offer, prospect, creditcard, callback);
+  else if (processor.type == 'virtualmerchant')
+    this.processOrderWithVirtualMerchant({
+      id: processor.id,
+      merchant_id: processor.virtualMerchant.merchant_id,
+      user_id: processor.virtualMerchant.user_id,
+      ssl_pin: processor.virtualMerchant.ssl_pin
+    }, offer, prospect, creditcard, callback);
+};
+
 NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect, creditcard, callback) {
   var GatewayService = rocketgate.GatewayService;
   var GatewayRequest = rocketgate.GatewayRequest;
@@ -135,40 +151,64 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
       order.billing_status = 'completed';
       order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(null, order);
+        callback && callback(error, result);
       });
     }
     else {
-      console.log(response);
       order.billing_status = 'failed';
       order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback("Purchase failed!");
+        if (error)
+          callback && callback(error);
+        else
+          callback && callback("Gateway couldn't process your order");
       });
     }
   });
 };
 
-NodeSDK.prototype.processOrderWithVirtualMerchant = function(options, order, prospect, callback) {
-  var gateway = new virtualmerchant({
-    merchant_id: options.merchant_id,
-    user_id: options.user_id,
-    ssl_pin: options.ssl_pin,
+NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, prospect, creditcard, callback) {
+  var self = this;
+  var vm = new virtualmerchant({
+    merchant_id: gateway.merchant_id,
+    user_id: gateway.user_id,
+    ssl_pin: gateway.ssl_pin,
     test_mode: false
   });
-  gateway.doPurchase({
-    card_number: order.number,
-    exp_date: order.expiration.split(' / ').join(''),
+  var order = {
+    gateway_id: gateway.id,
+    prospect_id: prospect.id,
+    offer_id: offer.id,
+    amount: offer.amount,
+    ip_address: prospect.ip_address,
+    referer: prospect.referer,
+    creditcard: JSON.stringify(creditcard)
+  };
+  vm.doPurchase({
+    card_number: creditcard.number.trim().replace(/ /g,''),
+    exp_date: creditcard.expiration.split(' / ').join(''),
     amount: order.amount
   }, function(error, result) {
-    if (error)
-      return callback && callback(error);
+    console.log(error, result);
+    if (error) {
+      order.billing_status = 'failed';
+      order.gateway_response = result.errorName;
+      return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+        if (error)
+          callback && callback(error);
+        else
+          callback && callback(result.errorName);
+      });
+    }
     try {
-      result = JSON.parse(result);
-      return callback && callback(null, result.ssl_txn_id);
+      order.billing_status = 'completed';
+      order.transaction_id = result.ssl_txn_id;
+      self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+        callback && callback(error, result);
+      });
     }
     catch(e) {
-      return callback(result);
+      return callback && callback(result);
     }
   });
 };
