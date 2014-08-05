@@ -12,6 +12,7 @@ NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
+NodeSDK.ACTION_GET_ORDER = '/getOrder';
 NodeSDK.ACTION_ADD_PROSPECT = '/addProspect';
 NodeSDK.ACTION_ADD_ORDER = '/addOrder';
 
@@ -80,6 +81,12 @@ NodeSDK.prototype.initialize = function(callback) {
   });
 };
 
+NodeSDK.prototype.getOrder = function(attributes, callback) {
+  var self = this;
+  this.process(NodeSDK.ACTION_GET_ORDER, attributes, function(error, result) {
+    callback && callback(error, result);
+  });
+};
 
 NodeSDK.prototype.registerProspect = function(prospect, callback) {
   prospect.billing = JSON.stringify(prospect.billing);
