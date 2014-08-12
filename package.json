@@ -21,8 +21,8 @@
   "dependencies": {
     "paypal-rest-sdk": "~0.9.3",
     "request": "~2.37.0",
-    "rocketgate": "0.0.2",
-    "virtualmerchant": "0.0.3"
+    "rocketgate": "latest",
+    "virtualmerchant": "latest"
   },
   "devDependencies": {
     "should": "~4.0.4",
