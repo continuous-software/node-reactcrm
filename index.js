@@ -12,6 +12,7 @@ NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
+NodeSDK.ACTION_UPDATE_STOREFRONT = '/updateCampaign';
 NodeSDK.ACTION_GET_ORDER = '/getOrder';
 NodeSDK.ACTION_ADD_PROSPECT = '/addProspect';
 NodeSDK.ACTION_ADD_ORDER = '/addOrder';
@@ -37,7 +38,7 @@ function NodeSDK(apiKey, apiSecret, callback) {
       if (result.error)
         return callback && callback(result.error);
       _this.token = result.token;
-      return _this.initialize(function (error) {
+      return _this.getStorefront(function (error) {
         if (error)
           return callback && callback(error);
         if (result.error)
@@ -73,12 +74,19 @@ NodeSDK.prototype.authenticate = function(apiKey, apiSecret, callback) {
   });
 };
 
-NodeSDK.prototype.initialize = function(callback) {
+NodeSDK.prototype.getStorefront = function(callback) {
   var self = this;
   console.log('[react] retrieving storefront informations');
   this.process(NodeSDK.ACTION_GET_STOREFRONT, {}, function(error, result) {
     callback && callback(error, result);
   });
+};
+
+NodeSDK.prototype.updateStorefront = function(attributes, callback) {
+    var self = this;
+    this.process(NodeSDK.ACTION_UPDATE_STOREFRONT, attributes, function(error, result) {
+	callback && callback(error, result);
+    });
 };
 
 NodeSDK.prototype.getOrder = function(attributes, callback) {
@@ -97,7 +105,7 @@ NodeSDK.prototype.registerProspect = function(prospect, callback) {
   });
 };
 
-NodeSDK.prototype.processOrder = function(processor, offer, prospect, creditcard, callback) {
+NodeSDK.prototype.processOrder = function(processor, offer, creditcard, prospect, callback) {
   if (processor.type == 'rocketgate')
     this.processOrderWithRocketgate({
       id: processor.id,
@@ -140,7 +148,7 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
   request.Set(GatewayRequest.CVV2, creditcard.cvv2);
   request.Set(GatewayRequest.CVV2_CHECK, "IGNORE");
   request.Set(GatewayRequest.EMAIL, prospect.email);
-  request.Set(GatewayRequest.IPADDRESS, prospect.ip_address);
+  request.Set(GatewayRequest.IPADDRESS, prospect.source.ip_address);
   request.Set(GatewayRequest.SCRUB, "IGNORE");
   service.SetTestMode(true);
   var self = this;
@@ -149,8 +157,8 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
     prospect_id: prospect.id,
     offer_id: offer.id,
     amount: offer.amount,
-    ip_address: prospect.ip_address,
-    referer: prospect.referer,
+    ip_address: prospect.source.ip_address,
+    referer: prospect.source.referer,
     creditcard: JSON.stringify(creditcard)
   };
   service.PerformPurchase(request, response, function(status) {
@@ -187,8 +195,8 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     prospect_id: prospect.id,
     offer_id: offer.id,
     amount: offer.amount,
-    ip_address: prospect.ip_address,
-    referer: prospect.referer,
+    ip_address: prospect.source.ip_address,
+    referer: prospect.source.referer,
     creditcard: JSON.stringify(creditcard)
   };
   vm.doPurchase({
