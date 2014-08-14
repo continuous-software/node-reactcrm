@@ -1,4 +1,5 @@
-node-reactcrm
-=============
+![node-reactcrm](https://pbs.twimg.com/profile_images/487286850340409344/EjwmYJ_q.png)
 
-SDK for storefronts to process sales and communicate with ReactCRM.
+## Installation ##
+
+    npm install -s reactcrm
