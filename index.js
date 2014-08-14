@@ -1,5 +1,8 @@
 'use strict';
 
+var oxr = require('open-exchange-rates'),
+    fx = require('money');
+
 var request = require('request');
 var rocketgate = require('rocketgate');
 var virtualmerchant = require('virtualmerchant');
@@ -156,29 +159,36 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
     gateway_id: gateway.id,
     prospect_id: prospect.id,
     offer_id: offer.id,
-    amount: offer.amount,
+    original_amount: offer.amount,
+    converted_amount: '',
     ip_address: prospect.source.ip_address,
     referer: prospect.source.referer,
     creditcard: JSON.stringify(creditcard)
   };
-  service.PerformPurchase(request, response, function(status) {
-    if (status) {
-      order.billing_status = 'completed';
-      order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
-      self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(error, result);
+  oxr.set({ app_id: '9feac8f89fcd492086f8644de9da1974' });
+  oxr.latest(function() {
+      fx.rates = oxr.rates;
+      fx.base = oxr.base;
+      order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
+      service.PerformPurchase(request, response, function(status) {
+        if (status) {
+          order.billing_status = 'completed';
+          order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
+          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+            callback && callback(error, result);
+          });
+        }
+        else {
+          order.billing_status = 'failed';
+          order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
+          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+            if (error)
+              callback && callback(error);
+            else
+              callback && callback("Gateway couldn't process your order");
+          });
+        }
       });
-    }
-    else {
-      order.billing_status = 'failed';
-      order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
-      self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        if (error)
-          callback && callback(error);
-        else
-          callback && callback("Gateway couldn't process your order");
-      });
-    }
   });
 };
 
@@ -194,15 +204,25 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     gateway_id: gateway.id,
     prospect_id: prospect.id,
     offer_id: offer.id,
-    amount: offer.amount,
+    original_amount: offer.amount,
+    converted_amount: '',
     ip_address: prospect.source.ip_address,
     referer: prospect.source.referer,
     creditcard: JSON.stringify(creditcard)
   };
+  oxr.set({ app_id: '9feac8f89fcd492086f8644de9da1974' });
+  oxr.latest(function() {
+      fx.rates = oxr.rates;
+      fx.base = oxr.base;
+    console.log(order);
+    console.log(offer);
+      order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
+    console.log(order);
+
   vm.doPurchase({
     card_number: creditcard.number.trim().replace(/ /g,''),
     exp_date: creditcard.expiration.split(' / ').join(''),
-    amount: order.amount
+    amount: order.converted_amount
   }, function(error, result) {
     console.log(error, result);
     if (error) {
@@ -225,5 +245,6 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     catch(e) {
       return callback && callback(result);
     }
+  });
   });
 };
