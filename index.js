@@ -214,11 +214,7 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
   oxr.latest(function() {
       fx.rates = oxr.rates;
       fx.base = oxr.base;
-    console.log(order);
-    console.log(offer);
       order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
-    console.log(order);
-
   vm.doPurchase({
     card_number: creditcard.number.trim().replace(/ /g,''),
     exp_date: creditcard.expiration.split(' / ').join(''),
@@ -227,17 +223,24 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     console.log(error, result);
     if (error) {
       order.billing_status = 'failed';
-      order.gateway_response = result.errorName;
+      order.gateway_response = error.errorName;
       return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
         if (error)
           callback && callback(error);
-        else
+        else if (result.errorName)
           callback && callback(result.errorName);
+        else if (result.ssl_result)
+          callback && callback(result.ssl_result_message);
+        else
+          callback && callback("unexpected error");
       });
     }
     try {
-      order.billing_status = 'completed';
+      order.gateway_message = result.ssl_result_message;
       order.transaction_id = result.ssl_txn_id;
+      order.billing_status = (result.ssl_result)
+        ? 'failed'
+        : 'completed';
       self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
         callback && callback(error, result);
       });
