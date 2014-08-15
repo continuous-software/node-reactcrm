@@ -215,20 +215,16 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
       fx.rates = oxr.rates;
       fx.base = oxr.base;
       order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
-  vm.doPurchase({
-    card_number: creditcard.number.trim().replace(/ /g,''),
-    exp_date: creditcard.expiration.split(' / ').join(''),
-    amount: order.converted_amount
-  }, function(error, result) {
+  vm.doPurchase(order, prospect, creditcard, function(error, result) {
     console.log(error, result);
     if (error) {
       order.billing_status = 'failed';
       order.gateway_response = error.errorName;
-      return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        if (error)
-          callback && callback(error);
-        else if (result.errorName)
-          callback && callback(result.errorName);
+      return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (e, result) {
+        if (e)
+          callback && callback(e);
+        else if (error.errorName)
+          callback && callback(error.errorName);
         else if (result.ssl_result)
           callback && callback(result.ssl_result_message);
         else
