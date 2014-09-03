@@ -229,7 +229,7 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     console.log(error, result);
     if (error) {
       order.billing_status = 'failed';
-      order.gateway_response = error.errorName;
+      order.gateway_response = (error.errorName) ? error.errorMessage : error;
       return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (e, result) {
         if (e)
           callback && callback(e);
