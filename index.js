@@ -169,7 +169,12 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
   oxr.latest(function() {
       fx.rates = oxr.rates;
       fx.base = oxr.base;
-      order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
+    if (offer.currency != 'USD') {
+      order.converted_amount = (fx(order.original_amount).from(offer.currency).to('USD')).toFixed(2);
+      order.converted_amount = (order.converted_amount - (1 * order.converted_amount / 100)).toFixed(2);
+    }
+    else
+      order.converted_amount = order.original_amount;
       service.PerformPurchase(request, response, function(status) {
         if (status) {
           order.billing_status = 'completed';
@@ -214,7 +219,12 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
   oxr.latest(function() {
       fx.rates = oxr.rates;
       fx.base = oxr.base;
-      order.converted_amount = Math.ceil(fx(order.original_amount).from(offer.currency).to('USD')) + '';
+    if (offer.currency != 'USD') {
+      order.converted_amount = (fx(order.original_amount).from(offer.currency).to('USD')).toFixed(2);
+      order.converted_amount = (order.converted_amount - (1 * order.converted_amount / 100)).toFixed(2);
+    }
+    else
+      order.converted_amount = order.original_amount;
   vm.doPurchase(order, prospect, creditcard, function(error, result) {
     console.log(error, result);
     if (error) {
