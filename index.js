@@ -6,7 +6,7 @@ var oxr = require('open-exchange-rates'),
 var request = require('request');
 var rocketgate = require('rocketgate');
 var virtualmerchant = require('virtualmerchant');
-var payflow = reuqire('payflow');
+var payflow = require('payflow');
 
 module.exports = NodeSDK;
 
@@ -277,18 +277,20 @@ NodeSDK.prototype.processOrderWithPayFlow = function(gateway, offer, prospect, c
     "credentials": {
       "PARTNER": gateway.partner,
       "VENDOR": gateway.merchant_login,
-      "USER": "",
+      "USER": gateway.merchant_login,
       "PWD": gateway.password
     }
   });
   var sale = payflow.getModel('sale');
   var data = {
-      TRXTYPE: "S",
-      TENDER: "C",
-      ACCT: creditcard.number.trim(),
-      EXPDATE: creditcard.expiration.replace('/', ''),
-      CVV2: creditcard.cvv2,
-      AMT: offer.amount
+    TRXTYPE: "S",
+    TENDER: "C",
+    ACCT: creditcard.number.replace(/ /g,''),
+    EXPDATE: creditcard.expiration.replace(' / ', ''),
+    CVV2: creditcard.cvv2,
+    AMT: offer.amount,
+    FIRSTNAME: prospect.firstname,
+    LASTNAME: prospect.lastname
   };
   var self = this;
   var order = {
@@ -316,18 +318,31 @@ NodeSDK.prototype.processOrderWithPayFlow = function(gateway, offer, prospect, c
     payflow.execute(data, function(err, data) {
       console.log('PAYFLOW RESULT', err, data);
       if (err) {
-        order.billing_status = 'failed';
-        //      order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
-        self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-          if (error)
-            callback && callback(error);
-          else
-            callback && callback("Gateway couldn't process your order");
-        });
+        if (data.response.decoded.RESULT == '126') {
+          order.billing_status = 'pending';
+          order.transaction_id = data.response.decoded.PNREF;
+          order.gateway_response = data.response.decoded.RESPMSG;
+          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+            if (error)
+              callback && callback(error);
+            else
+              callback && callback(error, result);
+          });
+        }
+        else {
+          order.billing_status = 'failed';
+          order.gateway_response = data.response.decoded.RESPMSG;
+          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+            if (error)
+              callback && callback(error);
+            else
+              callback && callback("Gateway couldn't process your order");
+          });
+        }
       }
       else {
         order.billing_status = 'completed';
-        //    order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
+        order.transaction_id = data.response.decoded.PNREF;
         self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
           callback && callback(error, result);
         });
