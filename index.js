@@ -6,6 +6,7 @@ var oxr = require('open-exchange-rates'),
 var request = require('request');
 var rocketgate = require('rocketgate');
 var virtualmerchant = require('virtualmerchant');
+var payflow = reuqire('payflow');
 
 module.exports = NodeSDK;
 
@@ -86,10 +87,10 @@ NodeSDK.prototype.getStorefront = function(callback) {
 };
 
 NodeSDK.prototype.updateStorefront = function(attributes, callback) {
-    var self = this;
-    this.process(NodeSDK.ACTION_UPDATE_STOREFRONT, attributes, function(error, result) {
-	callback && callback(error, result);
-    });
+  var self = this;
+  this.process(NodeSDK.ACTION_UPDATE_STOREFRONT, attributes, function(error, result) {
+    callback && callback(error, result);
+  });
 };
 
 NodeSDK.prototype.getOrder = function(attributes, callback) {
@@ -110,7 +111,7 @@ NodeSDK.prototype.registerProspect = function(prospect, callback) {
 
 NodeSDK.prototype.processOrder = function(processor, offer, creditcard, prospect, callback) {
   if (processor.type == 'rocketgate')
-    this.processOrderWithRocketgate({
+    this.processOrderWithRocketGate({
       id: processor.id,
       merchant_id: processor.rocketGate.merchant_id,
       merchant_password: processor.rocketGate.merchant_password
@@ -122,9 +123,16 @@ NodeSDK.prototype.processOrder = function(processor, offer, creditcard, prospect
       user_id: processor.virtualMerchant.user_id,
       ssl_pin: processor.virtualMerchant.ssl_pin
     }, offer, prospect, creditcard, callback);
+  else if (processor.type == 'payflow')
+    this.processOrderWithPayFlow({
+      id: processor.id,
+      partner: processor.payFlow.partner,
+      merchant_login: processor.payFlow.merchant_login,
+      password: processor.payFlow.password
+    }, offer, prospect, creditcard, callback);
 };
 
-NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect, creditcard, callback) {
+NodeSDK.prototype.processOrderWithRocketGate = function(gateway, offer, prospect, creditcard, callback) {
   var GatewayService = rocketgate.GatewayService;
   var GatewayRequest = rocketgate.GatewayRequest;
   var GatewayResponse = rocketgate.GatewayResponse;
@@ -179,23 +187,23 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
       order.converted_amount = order.original_amount;
     service.PerformPurchase(request, response, function(status) {
       if (status) {
-          order.billing_status = 'completed';
-          order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
-          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-            callback && callback(error, result);
-          });
-        }
-        else {
-          order.billing_status = 'failed';
-          order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
-          self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-            if (error)
-              callback && callback(error);
-            else
-              callback && callback("Gateway couldn't process your order");
-          });
-        }
-      });
+        order.billing_status = 'completed';
+        order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
+        self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+          callback && callback(error, result);
+        });
+      }
+      else {
+        order.billing_status = 'failed';
+        order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
+        self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+          if (error)
+            callback && callback(error);
+          else
+            callback && callback("Gateway couldn't process your order");
+        });
+      }
+    });
   });
 };
 
@@ -229,34 +237,101 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     }
     else
       order.converted_amount = order.original_amount;
-  vm.doPurchase(order, prospect, creditcard, function(error, result) {
-    if (error) {
-      order.billing_status = 'failed';
-      order.gateway_response = (error.errorName) ? error.errorMessage : error;
-      return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (e, result) {
-        if (e)
-          callback && callback(e);
-        else if (error.errorName)
-          callback && callback(error.errorName);
-        else if (result.ssl_result)
-          callback && callback(result.ssl_result_message);
-        else
-          callback && callback("unexpected error");
-      });
-    }
-    try {
-      order.gateway_message = result.ssl_result_message;
-      order.transaction_id = result.ssl_txn_id;
-      order.billing_status = (result.ssl_result)
-        ? 'failed'
-        : 'completed';
-      self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-        callback && callback(error, result);
-      });
-    }
-    catch(e) {
-      return callback && callback(result);
+    vm.doPurchase(order, prospect, creditcard, function(error, result) {
+      if (error) {
+        order.billing_status = 'failed';
+        order.gateway_response = (error.errorName) ? error.errorMessage : error;
+        return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (e, result) {
+          if (e)
+            callback && callback(e);
+          else if (error.errorName)
+            callback && callback(error.errorName);
+          else if (result.ssl_result)
+            callback && callback(result.ssl_result_message);
+          else
+            callback && callback("unexpected error");
+        });
+      }
+      try {
+        order.gateway_message = result.ssl_result_message;
+        order.transaction_id = result.ssl_txn_id;
+        order.billing_status = (result.ssl_result)
+          ? 'failed'
+          : 'completed';
+        return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+          callback && callback(error, result);
+        });
+      }
+      catch(e) {
+        return callback && callback(result);
+      }
+    });
+  });
+};
+
+
+NodeSDK.prototype.processOrderWithPayFlow = function(gateway, offer, prospect, creditcard, callback) {
+  payflow.configure({
+    "host": "pilot-payflowpro.paypal.com",
+    "port": "443",
+    "credentials": {
+      "PARTNER": gateway.partner,
+      "VENDOR": gateway.merchant_login,
+      "USER": "",
+      "PWD": gateway.password
     }
   });
+  var sale = payflow.getModel('sale');
+  var data = {
+      TRXTYPE: "S",
+      TENDER: "C",
+      ACCT: creditcard.number.trim(),
+      EXPDATE: creditcard.expiration.replace('/', ''),
+      CVV2: creditcard.cvv2,
+      AMT: offer.amount
+  };
+  var self = this;
+  var order = {
+    gateway_id: gateway.id,
+    prospect_id: prospect.id,
+    offer_id: offer.id,
+    original_amount: offer.amount,
+    converted_amount: '',
+    ip_address: prospect.source.ip_address,
+    referer: prospect.source.referer,
+    creditcard: JSON.stringify(creditcard)
+  };
+  oxr.set({ app_id: '9feac8f89fcd492086f8644de9da1974' });
+  oxr.latest(function(error) {
+    if (error && offer.currency != 'USD')
+      return callback && callback("Couldn't retrieve exchange rates");
+    if (offer.currency != 'USD') {
+      fx.rates = oxr.rates;
+      fx.base = oxr.base;
+      order.converted_amount = (fx(order.original_amount).from(offer.currency).to('USD')).toFixed(2);
+      order.converted_amount = (order.converted_amount - (1 * order.converted_amount / 100)).toFixed(2);
+    }
+    else
+      order.converted_amount = order.original_amount;
+    payflow.execute(data, function(err, data) {
+      console.log('PAYFLOW RESULT', err, data);
+      if (err) {
+        order.billing_status = 'failed';
+        //      order.gateway_response = response.Get(GatewayResponse.REASON_CODE);
+        self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+          if (error)
+            callback && callback(error);
+          else
+            callback && callback("Gateway couldn't process your order");
+        });
+      }
+      else {
+        order.billing_status = 'completed';
+        //    order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
+        self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
+          callback && callback(error, result);
+        });
+      }
+    });
   });
 };
