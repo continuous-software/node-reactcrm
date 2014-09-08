@@ -166,17 +166,19 @@ NodeSDK.prototype.processOrderWithRocketgate = function(gateway, offer, prospect
     creditcard: JSON.stringify(creditcard)
   };
   oxr.set({ app_id: '9feac8f89fcd492086f8644de9da1974' });
-  oxr.latest(function() {
+  oxr.latest(function(error) {
+    if (error && offer.currency != 'USD')
+      return callback && callback("Couldn't retrieve exchange rates");
+    if (offer.currency != 'USD') {
       fx.rates = oxr.rates;
       fx.base = oxr.base;
-    if (offer.currency != 'USD') {
       order.converted_amount = (fx(order.original_amount).from(offer.currency).to('USD')).toFixed(2);
       order.converted_amount = (order.converted_amount - (1 * order.converted_amount / 100)).toFixed(2);
     }
     else
       order.converted_amount = order.original_amount;
-      service.PerformPurchase(request, response, function(status) {
-        if (status) {
+    service.PerformPurchase(request, response, function(status) {
+      if (status) {
           order.billing_status = 'completed';
           order.transaction_id = response.Get(GatewayResponse.TRANSACT_ID);
           self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
@@ -216,17 +218,18 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
     creditcard: JSON.stringify(creditcard)
   };
   oxr.set({ app_id: '9feac8f89fcd492086f8644de9da1974' });
-  oxr.latest(function() {
+  oxr.latest(function(error) {
+    if (error && offer.currency != 'USD')
+      return callback && callback("Couldn't retrieve exchange rates");
+    if (offer.currency != 'USD') {
       fx.rates = oxr.rates;
       fx.base = oxr.base;
-    if (offer.currency != 'USD') {
       order.converted_amount = (fx(order.original_amount).from(offer.currency).to('USD')).toFixed(2);
       order.converted_amount = (order.converted_amount - (1 * order.converted_amount / 100)).toFixed(2);
     }
     else
       order.converted_amount = order.original_amount;
   vm.doPurchase(order, prospect, creditcard, function(error, result) {
-    console.log(error, result);
     if (error) {
       order.billing_status = 'failed';
       order.gateway_response = (error.errorName) ? error.errorMessage : error;
