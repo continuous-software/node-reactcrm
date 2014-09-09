@@ -258,8 +258,11 @@ NodeSDK.prototype.processOrderWithVirtualMerchant = function(gateway, offer, pro
         order.billing_status = (result.ssl_result)
           ? 'failed'
           : 'completed';
-        return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result) {
-          callback && callback(error, result);
+        return self.process(NodeSDK.ACTION_ADD_ORDER, order, function (error, result2) {
+          if (result.ssl_result)
+            callback && callback(result.ssl_result_message, result2);
+          else
+            callback && callback(error, result2);
         });
       }
       catch(e) {
