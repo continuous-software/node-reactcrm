@@ -12,7 +12,7 @@ module.exports = NodeSDK;
 
 NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
   ? "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT
-  : 'http://api.reactcrm.com';
+  : 'https://api.reactcrm.com';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
