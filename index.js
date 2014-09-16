@@ -12,7 +12,7 @@ module.exports = NodeSDK;
 
 NodeSDK.API_ENDPOINT = (process.env.API_1_PORT_8001_TCP_ADDR)
   ? "http://" + process.env.API_1_PORT_8001_TCP_ADDR + ":" + process.env.API_1_PORT_8001_TCP_PORT
-  : 'https://api.reactcrm.com';
+  : 'http://api.reactcrm.com';
 NodeSDK.ACTION_AUTHENTICATE = '/authenticateApplication';
 NodeSDK.ACTION_GET_APPLICATION = '/getApplication';
 NodeSDK.ACTION_GET_STOREFRONT = '/getCampaign';
@@ -321,7 +321,7 @@ NodeSDK.prototype.processOrderWithPayFlow = function(gateway, offer, prospect, c
     payflow.execute(data, function(err, data) {
       console.log('PAYFLOW RESULT', err, data);
       if (err) {
-        if (data.response.decoded.RESULT == '126') {
+        if (data && data.response.decoded.RESULT == '126') {
           order.billing_status = 'pending';
           order.transaction_id = data.response.decoded.PNREF;
           order.gateway_response = data.response.decoded.RESPMSG;
