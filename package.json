@@ -1,0 +1,18 @@
+{
+  "name": "ReacCRM-SDK",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "42-cent": "^0.2.1",
+    "bluebird": "^2.3.2"
+  },
+  "devDependencies": {
+    "nock": "^0.48.0"
+  }
+}
