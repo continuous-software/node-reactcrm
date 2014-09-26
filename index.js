@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var ReactCRM = require('./lib/ReactCRM.js');
 
 module.exports = {
@@ -6,5 +5,6 @@ module.exports = {
         var service = new ReactCRM(apiKey, apiSecret, options);
         return service.authenticate();
     },
-    ReactCRM: ReactCRM
+    ReactCRM: ReactCRM,
+    errors: require('./lib/errors.js')
 };
