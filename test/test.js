@@ -1,6 +1,8 @@
 var react = require('../index.js');
 var nock = require('nock');
 var assert = require('assert');
+var cent42 = require('42-cent');
+var gwMock = require('./mocks/gateway.js');
 
 describe('ReactCRM', function () {
 
@@ -161,17 +163,110 @@ describe('ReactCRM', function () {
 
         it('should create an order', function (done) {
             var api = nock('http://base.com')
-                .post('/orders',{transaction_id:243})
+                .post('/orders', {transaction_id: 243})
                 .reply(201, {id: 666, prop: 'value'});
 
-            service.addOrder({transaction_id:243}).then(function (result) {
-                assert.equal(result.id,666);
-                assert.equal(result.prop,'value');
+            service.addOrder({transaction_id: 243}).then(function (result) {
+                assert.equal(result.id, 666);
+                assert.equal(result.prop, 'value');
                 api.done();
                 done();
             });
-
-
         });
+    });
+
+    describe('process order', function () {
+
+        var service;
+
+        afterEach(function () {
+            nock.cleanAll();
+        });
+
+        beforeEach(function () {
+            //already authenticated application
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
+            cent42.registerGateway('dummy', gwMock.factory);
+        });
+
+        it('should process the payement and save the order reference', function (done) {
+
+            var processor = {
+                id: 666,
+                type: 'dummy',
+                credentials: {
+                    USER: 'blah',
+                    PASSWORD: 'test'}
+            };
+            var offer = {
+                id: 111,
+                amount: 199,
+                currency: 'EUR'
+            };
+            var creditCard = {
+                cardNumber: '0000-0000-0000-0000'
+            };
+            var prospect = {
+                id: 6666,
+                source: {
+                    referer: 'bob',
+                    ip_address: 'http://127.0.0.1'
+                }
+            };
+            //todo better check on body content
+            var api = nock('http://base.com')
+                .post('/orders')
+                .reply(201, {newOrder: 'blah'});
+
+            gwMock.GatewayMock.resolveWith({transactionId: 111});
+
+            service.processOrder(processor, offer, creditCard, prospect).then(function (result) {
+                api.done();
+                assert.equal(result.newOrder, 'blah');
+                done();
+            }, function (err) {
+                console.log(err);
+            });
+        });
+
+        it('should still resolve the promise when gateway throws an exception', function (done) {
+            var processor = {
+                id: 666,
+                type: 'dummy',
+                credentials: {
+                    USER: 'blah',
+                    PASSWORD: 'test'}
+            };
+            var offer = {
+                id: 111,
+                amount: 199,
+                currency: 'EUR'
+            };
+            var creditCard = {
+                cardNumber: '0000-0000-0000-0000'
+            };
+            var prospect = {
+                id: 6666,
+                source: {
+                    referer: 'bob',
+                    ip_address: 'http://127.0.0.1'
+                }
+            };
+            //todo better check on body content
+            var api = nock('http://base.com')
+                .post('/orders')
+                .reply(201, {billing_status: 'failed'});
+
+            gwMock.GatewayMock.rejectWith({message: 'some error'});
+
+            service.processOrder(processor, offer, creditCard, prospect).then(function (result) {
+                api.done();
+                assert.equal(result.billing_status, 'failed');
+                done();
+            }, function (err) {
+                console.log(err);
+            });
+        });
+
     });
 });

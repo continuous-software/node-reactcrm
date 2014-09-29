@@ -26,6 +26,7 @@
     "request": "^2.44.0"
   },
   "devDependencies": {
+    "42-cent-base": "^0.2.0",
     "mocha": "^1.21.4",
     "nock": "^0.48.0"
   }
