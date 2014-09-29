@@ -269,4 +269,51 @@ describe('ReactCRM', function () {
         });
 
     });
+
+    describe('increment visits', function () {
+        var service;
+
+        afterEach(function () {
+            nock.cleanAll();
+        });
+
+        beforeEach(function () {
+            //already authenticated application
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+        });
+
+        it('should increment of n visits', function (done) {
+            var api = nock('http://base.com')
+                .put('/campaigns/666', {visits: 4})
+                .reply(201, {
+                    id: 666,
+                    visits: 56});
+
+            service.incrementVisits(4).then(function (result) {
+                assert.equal(result.id,666);
+                assert.equal(service.campaign.id,666);
+                assert.equal(result.visits,56);
+                assert.equal(service.campaign.visits,56);
+                api.done();
+                done();
+            })
+        });
+
+        it('should increment of 1 visit by default', function (done) {
+            var api = nock('http://base.com')
+                .put('/campaigns/666', {visits: 1})
+                .reply(201, {
+                    id: 666,
+                    visits: 56});
+
+            service.incrementVisits().then(function (result) {
+                assert.equal(result.id,666);
+                assert.equal(service.campaign.id,666);
+                assert.equal(result.visits,56);
+                assert.equal(service.campaign.visits,56);
+                api.done();
+                done();
+            })
+        });
+    });
 });
