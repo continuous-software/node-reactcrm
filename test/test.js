@@ -139,11 +139,39 @@ describe('ReactCRM', function () {
 
             service.getOrder(999).then(function (result) {
                 api.done();
-                assert.equal(result.id,13);
-                assert.equal(result.prop,'value');
+                assert.equal(result.id, 13);
+                assert.equal(result.prop, 'value');
                 done();
             });
         });
 
+    });
+
+    describe('add order', function () {
+        var service;
+
+        afterEach(function () {
+            nock.cleanAll();
+        });
+
+        beforeEach(function () {
+            //already authenticated application
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
+        });
+
+        it('should create an order', function (done) {
+            var api = nock('http://base.com')
+                .post('/orders',{transaction_id:243})
+                .reply(201, {id: 666, prop: 'value'});
+
+            service.addOrder({transaction_id:243}).then(function (result) {
+                assert.equal(result.id,666);
+                assert.equal(result.prop,'value');
+                api.done();
+                done();
+            });
+
+
+        });
     });
 });
