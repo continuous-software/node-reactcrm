@@ -119,7 +119,7 @@ describe('ReactCRM', function () {
         });
     });
 
-    xdescribe('getOrder', function () {
+    describe('getOrder', function () {
 
         var service;
 
@@ -129,16 +129,18 @@ describe('ReactCRM', function () {
 
         beforeEach(function () {
             //already authenticated application
-            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token'});
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
         });
 
-        xit('should get an order', function (done) {
-            var api = nock('http://base.com/getOrder')
+        it('should get an order', function (done) {
+            var api = nock('http://base.com')
+                .get('/orders/999')
                 .reply(200, {id: 13, prop: 'value'});
 
-            service.getOrder('13').then(function (result) {
+            service.getOrder(999).then(function (result) {
                 api.done();
-                assert.equal(result, {id: 13, prop: 'value'});
+                assert.equal(result.id,13);
+                assert.equal(result.prop,'value');
                 done();
             });
         });
