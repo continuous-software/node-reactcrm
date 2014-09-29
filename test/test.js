@@ -86,6 +86,39 @@ describe('ReactCRM', function () {
         });
     });
 
+    describe('save prospect', function () {
+        var service;
+
+        beforeEach(function () {
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+        });
+
+        afterEach(function () {
+            nock.cleanAll();
+        });
+
+        it('should add a prospect', function (done) {
+            var prospect = {
+                email: 'bob@eponge.com'
+            };
+
+            var api = nock('http://base.com').post('/prospects', {
+                email: 'bob@eponge.com',
+                campaignId: 666
+            }).reply(200, {
+                email: 'bob@eponge.com',
+                id: 999
+            });
+
+            service.saveProspect(prospect).then(function (result) {
+                assert.equal(result.email, 'bob@eponge.com');
+                assert.equal(result.id, 999);
+                api.done();
+                done();
+            });
+        });
+    });
+
     xdescribe('getOrder', function () {
 
         var service;
