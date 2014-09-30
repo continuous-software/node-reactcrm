@@ -204,7 +204,8 @@ describe('ReactCRM', function () {
                 currency: 'EUR'
             };
             var creditCard = {
-                cardNumber: '0000-0000-0000-0000'
+                number: '0000 0000 0000 0000',
+                expiration:'11 / 17'
             };
             var prospect = {
                 id: 6666,
@@ -243,7 +244,8 @@ describe('ReactCRM', function () {
                 currency: 'EUR'
             };
             var creditCard = {
-                cardNumber: '0000-0000-0000-0000'
+                number: '0000 0000 0000 0000',
+                expiration:'12 / 17'
             };
             var prospect = {
                 id: 6666,
