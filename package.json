@@ -2,14 +2,14 @@
   "author": "Amine Mouafik <amine@mouafik.fr>",
   "name": "reactcrm",
   "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
-  "version": "0.0.19",
+  "version": "1.0.0",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/continuous-software/node-reactcrm"
   },
   "scripts": {
-    "test": "mocha --reporter spec"
+    "test": "NODE_ENV='test' node ./node_modules/.bin/mocha ./test/ -R spec -t 35000"
   },
   "keywords": [
     "crm",
@@ -19,15 +19,15 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "42-cent": "^0.2.1",
+    "bluebird": "^2.3.2",
     "money": "^0.2.0",
     "open-exchange-rates": "^0.3.0",
-    "payflow": "latest",
-    "request": "~2.37.0",
-    "rocketgate": "latest",
-    "virtualmerchant": "latest"
+    "request": "^2.44.0"
   },
   "devDependencies": {
-    "should": "~4.0.4",
-    "mocha": "~1.20.1"
+    "42-cent-base": "^0.2.0",
+    "mocha": "^1.21.4",
+    "nock": "^0.48.0"
   }
 }
