@@ -1,3 +1,5 @@
+'use strict';
+
 var react = require('../index.js');
 var nock = require('nock');
 var assert = require('assert');
@@ -83,7 +85,7 @@ describe('ReactCRM', function () {
                 assert.equal(storefront.prop, 'new');
                 assert.equal(service.campaign.prop, 'new');
                 api.done();
-                done()
+                done();
             });
         });
     });
@@ -298,7 +300,7 @@ describe('ReactCRM', function () {
                 assert.equal(service.campaign.visits,56);
                 api.done();
                 done();
-            })
+            });
         });
 
         it('should increment of 1 visit by default', function (done) {
@@ -315,7 +317,7 @@ describe('ReactCRM', function () {
                 assert.equal(service.campaign.visits,56);
                 api.done();
                 done();
-            })
+            });
         });
     });
 });

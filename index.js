@@ -1,3 +1,5 @@
+'use strict';
+
 var ReactCRM = require('./lib/ReactCRM.js');
 
 module.exports = {
