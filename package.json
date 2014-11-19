@@ -21,6 +21,7 @@
   "dependencies": {
     "42-cent": "^0.2.1",
     "bluebird": "^2.3.2",
+    "creditcard": "^0.1.1",
     "money": "^0.2.0",
     "open-exchange-rates": "^0.3.0",
     "request": "^2.44.0"
