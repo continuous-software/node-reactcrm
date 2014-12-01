@@ -58,7 +58,11 @@ describe('ReactCRM', function () {
         var service;
 
         beforeEach(function () {
-            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+            service = new react.ReactCRM('key', 'secret', {
+                endpoint: 'http://base.com',
+                token: 'token',
+                campaign: {id: 666}
+            });
         });
 
         afterEach(function () {
@@ -94,7 +98,11 @@ describe('ReactCRM', function () {
         var service;
 
         beforeEach(function () {
-            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+            service = new react.ReactCRM('key', 'secret', {
+                endpoint: 'http://base.com',
+                token: 'token',
+                campaign: {id: 666}
+            });
         });
 
         afterEach(function () {
@@ -177,6 +185,39 @@ describe('ReactCRM', function () {
         });
     });
 
+    describe('add subscription', function () {
+
+        var service;
+
+
+        afterEach(function () {
+            nock.cleanAll();
+        });
+
+        beforeEach(function () {
+            //already authenticated application
+            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
+        });
+
+        it('should add a subscription', function (done) {
+
+            var subscription = {customerToken: 'super_token', prospectId: 2, gatewayId: 3, recurringPlanId: 4};
+
+            var api = nock('http://base.com')
+                .post('/subscriptions', subscription)
+                .reply(201, {id: 666});
+
+            service.addSubscription(subscription)
+                .then(function (result) {
+                    assert.equal(result.id, 666);
+                    api.done();
+                    done();
+                });
+
+        });
+
+    });
+
     describe('process order', function () {
 
         var service;
@@ -198,7 +239,8 @@ describe('ReactCRM', function () {
                 type: 'dummy',
                 credentials: {
                     USER: 'blah',
-                    PASSWORD: 'test'}
+                    PASSWORD: 'test'
+                }
             };
             var offer = {
                 id: 111,
@@ -207,7 +249,7 @@ describe('ReactCRM', function () {
             };
             var creditCard = {
                 number: '0000 0000 0000 0000',
-                expiration:'11 / 17'
+                expiration: '11 / 17'
             };
             var prospect = {
                 id: 6666,
@@ -238,7 +280,8 @@ describe('ReactCRM', function () {
                 type: 'dummy',
                 credentials: {
                     USER: 'blah',
-                    PASSWORD: 'test'}
+                    PASSWORD: 'test'
+                }
             };
             var offer = {
                 id: 111,
@@ -247,7 +290,7 @@ describe('ReactCRM', function () {
             };
             var creditCard = {
                 number: '0000 0000 0000 0000',
-                expiration:'12 / 17'
+                expiration: '12 / 17'
             };
             var prospect = {
                 id: 6666,
@@ -283,7 +326,11 @@ describe('ReactCRM', function () {
 
         beforeEach(function () {
             //already authenticated application
-            service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+            service = new react.ReactCRM('key', 'secret', {
+                endpoint: 'http://base.com',
+                token: 'token',
+                campaign: {id: 666}
+            });
         });
 
         it('should increment of n visits', function (done) {
@@ -291,13 +338,14 @@ describe('ReactCRM', function () {
                 .put('/campaigns/666', {visits: 4})
                 .reply(201, {
                     id: 666,
-                    visits: 56});
+                    visits: 56
+                });
 
             service.incrementVisits(4).then(function (result) {
-                assert.equal(result.id,666);
-                assert.equal(service.campaign.id,666);
-                assert.equal(result.visits,56);
-                assert.equal(service.campaign.visits,56);
+                assert.equal(result.id, 666);
+                assert.equal(service.campaign.id, 666);
+                assert.equal(result.visits, 56);
+                assert.equal(service.campaign.visits, 56);
                 api.done();
                 done();
             });
@@ -308,13 +356,14 @@ describe('ReactCRM', function () {
                 .put('/campaigns/666', {visits: 1})
                 .reply(201, {
                     id: 666,
-                    visits: 56});
+                    visits: 56
+                });
 
             service.incrementVisits().then(function (result) {
-                assert.equal(result.id,666);
-                assert.equal(service.campaign.id,666);
-                assert.equal(result.visits,56);
-                assert.equal(service.campaign.visits,56);
+                assert.equal(result.id, 666);
+                assert.equal(service.campaign.id, 666);
+                assert.equal(result.visits, 56);
+                assert.equal(service.campaign.visits, 56);
                 api.done();
                 done();
             });
