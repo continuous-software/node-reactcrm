@@ -2,7 +2,7 @@
   "author": "Amine Mouafik <amine@mouafik.fr>",
   "name": "reactcrm",
   "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
-  "version": "1.2.7",
+  "version": "1.3.1",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "42-cent": "^0.2.1",
+    "42-cent-model": "^1.1.0",
     "bluebird": "^2.3.2",
     "creditcard": "^0.1.1",
     "money": "^0.2.0",
@@ -27,7 +28,7 @@
     "request": "^2.44.0"
   },
   "devDependencies": {
-    "42-cent-base": "^0.2.0",
+    "42-cent-base": "^0.8.0",
     "mocha": "^1.21.4",
     "nock": "^0.48.0"
   }
