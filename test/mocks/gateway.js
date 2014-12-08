@@ -16,7 +16,7 @@ GatewayMock.prototype.submitTransaction = function (order, cc, prospect, other) 
   return GatewayMock.resolveValue ? Promise.resolve(GatewayMock.resolveValue).then(function (val) {
     GatewayMock.resolveValue = null;
     return val;
-  }) : Promise.reject(GatewayMock.rejectValue || new Error('mock has no resolve value')).then(function (val) {
+    }) : Promise.reject(GatewayMock.rejectValue || new Error('mock has no resolve value')).then(function (val) {
     GatewayMock.rejectValue = null;
     return val;
   });

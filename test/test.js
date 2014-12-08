@@ -228,6 +228,7 @@ describe('ReactCRM', function () {
       };
 
       var prospect = {
+        id: 6666,
         firstname: 'bob',
         lastname: 'leponge',
         email: 'bobleponge@example.com',
@@ -281,16 +282,11 @@ describe('ReactCRM', function () {
         })
         .reply(201, {id: 999});
 
-      var prospectNock = nock('http://base.com')
-        .post('/prospects', extend(prospect, {campaignId: 666}))
-        .reply(201, {id: 6666});
-
       service.processSubscription(bank, prospect, creditCard, offer)
         .then(function (result) {
           assert.equal(result.id, 111);
           subscriptionNock.done();
           orderNock.done();
-          prospectNock.done();
           done();
         });
     });
@@ -322,6 +318,7 @@ describe('ReactCRM', function () {
       };
 
       var prospect = {
+        id:6666,
         firstname: 'bob',
         lastname: 'leponge',
         email: 'bobleponge@example.com',
@@ -375,16 +372,11 @@ describe('ReactCRM', function () {
         })
         .reply(201, {id: 999});
 
-      var prospectNock = nock('http://base.com')
-        .post('/prospects', extend(prospect, {campaignId: 666}))
-        .reply(201, {id: 6666});
-
       service.processSubscription(bank, prospect, creditCard, offer)
         .then(function (result) {
           assert.equal(result.id, 111);
           subscriptionNock.done();
           orderNock.done();
-          prospectNock.done();
           done();
         });
 
@@ -432,7 +424,6 @@ describe('ReactCRM', function () {
           ip_address: 'http://127.0.0.1'
         }
       };
-      //todo better check on body content
       var api = nock('http://base.com')
         .post('/orders')
         .reply(201, {newOrder: 'blah'});
