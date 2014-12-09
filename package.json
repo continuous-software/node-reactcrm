@@ -2,7 +2,7 @@
   "author": "Amine Mouafik <amine@mouafik.fr>",
   "name": "reactcrm",
   "description": "SDK for storefronts to process sales and communicate with ReactCRM.",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "main": "index.js",
   "repository": {
     "type": "git",
