@@ -274,6 +274,7 @@ describe('ReactCRM', function () {
           prospect_id: 6666,
           offer_id: offer.id,
           original_amount: offer.recurringPlan.amount,
+          converted_amount: offer.recurringPlan.amount,
           ip_address: prospect.source.ip_address,
           referer: prospect.source.referer,
           creditcard: extend(creditCard, {token: 'token'}),
@@ -282,7 +283,7 @@ describe('ReactCRM', function () {
         })
         .reply(201, {id: 999});
 
-      service.processSubscription(bank, prospect, creditCard, offer)
+      service.processSubscription(bank, offer, creditCard, prospect)
         .then(function (result) {
           assert.equal(result.id, 111);
           subscriptionNock.done();
@@ -365,6 +366,7 @@ describe('ReactCRM', function () {
           prospect_id: 6666,
           offer_id: offer.id,
           original_amount: offer.recurringPlan.amount,
+          converted_amount: offer.recurringPlan.amount,
           ip_address: prospect.source.ip_address,
           referer: prospect.source.referer,
           creditcard: extend(creditCard, {token: 'token'}),
@@ -372,7 +374,7 @@ describe('ReactCRM', function () {
         })
         .reply(201, {id: 999});
 
-      service.processSubscription(bank, prospect, creditCard, offer)
+      service.processSubscription(bank, offer, creditCard, prospect)
         .then(function (result) {
           assert.equal(result.id, 111);
           subscriptionNock.done();
