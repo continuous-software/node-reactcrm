@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/continuous-software/node-virtualmerchant.svg?branch=master)](https://travis-ci.org/continuous-software/node-virtualmerchant)
+[![Build Status](https://travis-ci.org/continuous-software/node-reactcrm.svg?branch=master)](https://travis-ci.org/continuous-software/node-reactcrm)
 
-![node-reactcrm](https://pbs.twimg.com/profile_images/487286850340409344/EjwmYJ_q.png)
+![node-reactcrm](https://s3-ap-southeast-1.amazonaws.com/uploads-ap.hipchat.com/100533/737628/WCXWWWBUNJMKAAh/react_logo_transparent-04_thumb.png)
 
 ## Installation ##
 
