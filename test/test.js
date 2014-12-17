@@ -285,7 +285,7 @@ describe('ReactCRM', function () {
 
       service.processSubscription(bank, offer, creditCard, prospect)
         .then(function (result) {
-          assert.equal(result.id, 111);
+          assert.equal(result.id, 999);
           subscriptionNock.done();
           orderNock.done();
           done();
@@ -376,7 +376,7 @@ describe('ReactCRM', function () {
 
       service.processSubscription(bank, offer, creditCard, prospect)
         .then(function (result) {
-          assert.equal(result.id, 111);
+          assert.equal(result.id, 999);
           subscriptionNock.done();
           orderNock.done();
           done();
