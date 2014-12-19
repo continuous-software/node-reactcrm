@@ -319,7 +319,7 @@ describe('ReactCRM', function () {
       };
 
       var prospect = {
-        id:6666,
+        id: 6666,
         firstname: 'bob',
         lastname: 'leponge',
         email: 'bobleponge@example.com',
@@ -405,10 +405,9 @@ describe('ReactCRM', function () {
       var processor = {
         id: 666,
         type: 'dummy',
-        credentials: {
-          USER: 'blah',
-          PASSWORD: 'test'
-        }
+        USER: 'blah',
+        PASSWORD: 'test'
+
       };
       var offer = {
         id: 111,
@@ -445,10 +444,8 @@ describe('ReactCRM', function () {
       var processor = {
         id: 666,
         type: 'dummy',
-        credentials: {
-          USER: 'blah',
-          PASSWORD: 'test'
-        }
+        USER: 'blah',
+        PASSWORD: 'test'
       };
       var offer = {
         id: 111,
