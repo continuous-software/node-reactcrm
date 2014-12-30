@@ -385,7 +385,6 @@ describe('ReactCRM', function () {
     });
   });
 
-
   describe('process order', function () {
 
     var service;
