@@ -9,7 +9,7 @@
     "url": "https://github.com/continuous-software/node-reactcrm"
   },
   "scripts": {
-    "test": "NODE_ENV='test' node ./node_modules/.bin/mocha ./test/ -R spec -t 35000"
+    "test": "OXR_APP_ID=9feac8f89fcd492086f8644de9da1974 NODE_ENV='test' node ./node_modules/.bin/mocha ./test/ -R spec -t 35000"
   },
   "keywords": [
     "crm",
