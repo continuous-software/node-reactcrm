@@ -23,7 +23,7 @@
     "bluebird": "^2.3.2",
     "creditcard": "^0.1.1",
     "money": "^0.2.0",
-    "open-exchange-rates-promise": "^0.1.1",
+    "oxr": "^1.0.1",
     "request": "^2.44.0"
   },
   "devDependencies": {
