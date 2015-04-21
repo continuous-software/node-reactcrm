@@ -7,6 +7,5 @@ module.exports = {
         var service = new ReactCRM(apiKey, apiSecret, options);
         return service.authenticate();
     },
-    ReactCRM: ReactCRM,
-    errors: require('./lib/errors.js')
+    ReactCRM: ReactCRM
 };

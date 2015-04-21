@@ -8,67 +8,39 @@
 //var Promise = require('bluebird');
 //var extend = require('util')._extend;
 
-var react = require('../lib/ReactCRM.js');
+var buildResoure = require('../lib/resourceBuilder.js');
 var assert = require('assert');
 var nock = require('nock');
+var proxy = require('../lib/proxyFunction.js');
+var authenticationProxy = require('../lib/authenticationProxy.js');
+var react = require('../index.js');
+var schema = require('../lib/schema.js');
 
-xdescribe('ReactCRM', function () {
 
-  describe('authentication', function () {
+describe('ReactCRM', function () {
 
-    afterEach(function () {
-      nock.cleanAll();
-    });
-
-    it('should return an authenticated service', function (done) {
-      var api = nock('http://base.com').post('/authenticateApplication', {
-        apiKey: 'key',
-        apiSecret: 'secret'
-      }).reply(200, {
-        token: 'token',
-        campaign: {
-          id: 666
-        }
-      });
-
-      react.getAuthenticatedApplication('key', 'secret', {endpoint: 'http://base.com'}).then(function (service) {
-        assert.equal(service.token, 'token');
-        assert.equal(service.campaign.id, 666);
-        assert(service instanceof react.ReactCRM);
-        api.done();
-        done();
-      });
-    });
-
-    it('should reject the promise as the application could not be authenticated', function (done) {
-      var api = nock('http://base.com').post('/authenticateApplication', {
-        apiKey: 'key',
-        apiSecret: 'secret'
-      }).reply(401, {
-        error: 'error'
-      });
-
-      react.getAuthenticatedApplication('key', 'secret', {endpoint: 'http://base.com'}).then(function (service) {
-        throw new Error('should not resolve');
-      }, function (err) {
-        assert.equal(err.status, 401);
-        assert.equal(err.message, 'error');
-        api.done();
-        done();
-      });
-    });
+  beforeEach(function () {
+    schema.links[0].href = 'http://base.com';
   });
 
   describe('get storeFront', function () {
 
     var service;
 
-    beforeEach(function () {
-      service = new react.ReactCRM('key', 'secret', {
-        endpoint: 'http://base.com',
-        token: 'token',
-        campaign: {id: 666}
-      });
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
+        .then(function (serv) {
+          service = serv;
+          done();
+        });
     });
 
     afterEach(function () {
@@ -103,12 +75,20 @@ xdescribe('ReactCRM', function () {
   describe('save prospect', function () {
     var service;
 
-    beforeEach(function () {
-      service = new react.ReactCRM('key', 'secret', {
-        endpoint: 'http://base.com',
-        token: 'token',
-        campaign: {id: 666}
-      });
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
+        .then(function (serv) {
+          service = serv;
+          done();
+        });
     });
 
     afterEach(function () {
@@ -141,13 +121,24 @@ xdescribe('ReactCRM', function () {
 
     var service;
 
-    afterEach(function () {
-      nock.cleanAll();
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
+        .then(function (serv) {
+          service = serv;
+          done();
+        });
     });
 
-    beforeEach(function () {
-      //already authenticated application
-      service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
+    afterEach(function () {
+      nock.cleanAll();
     });
 
     it('should get an order', function (done) {
@@ -168,18 +159,29 @@ xdescribe('ReactCRM', function () {
   describe('add order', function () {
     var service;
 
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
+        .then(function (serv) {
+          service = serv;
+          done();
+        });
+    });
+
     afterEach(function () {
       nock.cleanAll();
     });
 
-    beforeEach(function () {
-      //already authenticated application
-      service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
-    });
-
     it('should create an order', function (done) {
       var api = nock('http://base.com')
-        .post('/orders', {transaction_id: 243})
+        .post('/orders', {transaction_id: 243, campaign_id:666})
         .reply(201, {id: 666, prop: 'value'});
 
       service.addOrder({transaction_id: 243}).then(function (result) {
@@ -191,7 +193,7 @@ xdescribe('ReactCRM', function () {
     });
   });
 
-  describe('create subscription', function () {
+  xdescribe('create subscription', function () {
 
     var service;
 
@@ -389,7 +391,7 @@ xdescribe('ReactCRM', function () {
     });
   });
 
-  describe('process order', function () {
+  xdescribe('process order', function () {
 
     var service;
 
@@ -487,17 +489,24 @@ xdescribe('ReactCRM', function () {
   describe('increment visits', function () {
     var service;
 
-    afterEach(function () {
-      nock.cleanAll();
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
+        .then(function (serv) {
+          service = serv;
+          done();
+        });
     });
 
-    beforeEach(function () {
-      //already authenticated application
-      service = new react.ReactCRM('key', 'secret', {
-        endpoint: 'http://base.com',
-        token: 'token',
-        campaign: {id: 666}
-      });
+    afterEach(function () {
+      nock.cleanAll();
     });
 
     it('should increment of n visits', function (done) {
@@ -545,7 +554,7 @@ describe('ReactCRM resource builder', function () {
   });
 
   it('should namespace api based on properties field', function (done) {
-    var api = react({
+    var api = buildResoure({
       links: [{rel: 'self', href: 'http://foo.com'}],
       definitions: {
         products: {
@@ -582,7 +591,7 @@ describe('ReactCRM resource builder', function () {
   });
 
   it('should support url parameters', function (done) {
-    var api = react({
+    var api = buildResoure({
       links: [{rel: 'self', href: 'http://foo.com'}],
       definitions: {
         products: {
@@ -621,7 +630,7 @@ describe('ReactCRM resource builder', function () {
   });
 
   it('should support a post body', function (done) {
-    var api = react({
+    var api = buildResoure({
       links: [{rel: 'self', href: 'http://foo.com'}],
       definitions: {
         products: {
@@ -645,16 +654,16 @@ describe('ReactCRM resource builder', function () {
     });
 
     var scope = nock('http://foo.com')
-      .post('/products',{
-        id:666
+      .post('/products', {
+        id: 666
       })
-      .reply(200, {id: 666, created:true});
+      .reply(200, {id: 666, created: true});
 
     assert(api.products, 'products api should be defined');
     assert(api.products.create);
 
 
-    api.products.create({id:666}).then(function (product) {
+    api.products.create({id: 666}).then(function (product) {
       assert.equal(product.id, 666);
       assert.equal(product.created, true);
       assert.equal(scope.isDone(), true);
@@ -663,7 +672,7 @@ describe('ReactCRM resource builder', function () {
   });
 
   it('should support query parameters and body', function (done) {
-    var api = react({
+    var api = buildResoure({
       links: [{rel: 'self', href: 'http://foo.com'}],
       definitions: {
         products: {
@@ -682,21 +691,185 @@ describe('ReactCRM resource builder', function () {
     });
 
     var scope = nock('http://foo.com')
-      .put('/products/666',{
-        update:true
+      .put('/products/666', {
+        update: true
       })
-      .reply(200, {id: 666, updated:true});
+      .reply(200, {id: 666, updated: true});
+
 
     assert(api.products, 'products api should be defined');
     assert(api.products.update);
 
 
-    api.products.update(666,{update:true}).then(function (product) {
+    api.products.update(666, {update: true}).then(function (product) {
       assert.equal(product.id, 666);
       assert.equal(product.updated, true);
       assert.equal(scope.isDone(), true);
       done();
     });
   });
+});
+
+describe('authentication proxy', function () {
+
+  afterEach(function () {
+    nock.cleanAll();
+  });
+
+  it('should namespace api based on properties field', function (done) {
+    var api = buildResoure({
+      links: [{rel: 'self', href: 'http://foo.com'}],
+      definitions: {
+        products: {
+          links: [{
+            rel: 'instances',
+            method: 'GET',
+            href: '/products'
+          }]
+        }
+      },
+      properties: {
+        products: {
+          $ref: '#/definitions/products'
+        }
+      }
+    });
+    var products = proxy(api.products, authenticationProxy('secret'));
+
+
+    var scope = nock('http://foo.com')
+      .get('/products')
+      .matchHeader('authorization', 'Bearer secret')
+      .reply(200, [{id: 1}]);
+
+    assert(products, 'products api should be defined');
+    assert(products.instances);
+
+
+    products.instances().then(function (products) {
+      assert.equal(products.length, 1);
+      assert.equal(products[0].id, 1);
+      assert.equal(scope.isDone(), true);
+      done();
+    });
+
+
+  });
+
+  it('should support url parameters', function (done) {
+    var api = buildResoure({
+      links: [{rel: 'self', href: 'http://foo.com'}],
+      definitions: {
+        products: {
+          links: [{
+            "href": "/products/{(%23%2Fdefinitions%2Fproducts%2Fdefinitions%2Fid)}",
+            "method": "GET",
+            "rel": "self",
+            "schema": {
+              "properties": {"id": {"$ref": "#/definitions/products/definitions/id"}},
+              "required": ["id"],
+              "type": "object"
+            }
+          }]
+        }
+      },
+      properties: {
+        products: {
+          $ref: '#/definitions/products'
+        }
+      }
+    });
+
+    var products = proxy(api.products, authenticationProxy('secret'));
+
+    var scope = nock('http://foo.com')
+      .get('/products/666')
+      .matchHeader('authorization', 'Bearer secret')
+      .reply(200, {id: 666});
+
+    products.self(666).then(function (product) {
+      assert.equal(product.id, 666);
+      assert.equal(scope.isDone(), true);
+      done();
+    });
+  });
+
+  it('should support a post body', function (done) {
+    var api = buildResoure({
+      links: [{rel: 'self', href: 'http://foo.com'}],
+      definitions: {
+        products: {
+          links: [{
+            "href": "/products",
+            "method": "POST",
+            "rel": "create",
+            "schema": {
+              "properties": {"id": {"$ref": "#/definitions/products/definitions/id"}},
+              "required": ["id"],
+              "type": "object"
+            }
+          }]
+        }
+      },
+      properties: {
+        products: {
+          $ref: '#/definitions/products'
+        }
+      }
+    });
+
+    var products = proxy(api.products, authenticationProxy('secret'));
+
+    var scope = nock('http://foo.com')
+      .post('/products', {
+        id: 666
+      })
+      .matchHeader('authorization', 'Bearer secret')
+      .reply(200, {id: 666, created: true});
+
+
+    products.create({id: 666}).then(function (product) {
+      assert.equal(product.id, 666);
+      assert.equal(product.created, true);
+      assert.equal(scope.isDone(), true);
+      done();
+    });
+  });
+
+  it('should support query parameters and body', function (done) {
+    var api = buildResoure({
+      links: [{rel: 'self', href: 'http://foo.com'}],
+      definitions: {
+        products: {
+          links: [{
+            "href": "/products/{(%23%2Fdefinitions%2Fproducts%2Fdefinitions%2Fid)}",
+            "method": "PUT",
+            "rel": "update"
+          }]
+        }
+      },
+      properties: {
+        products: {
+          $ref: '#/definitions/products'
+        }
+      }
+    });
+
+    var products = proxy(api.products, authenticationProxy('secret'));
+    var scope = nock('http://foo.com')
+      .put('/products/666', {
+        update: true
+      })
+      .matchHeader('authorization', 'Bearer secret')
+      .reply(200, {id: 666, updated: true});
+
+    products.update(666, {update: true}).then(function (product) {
+      assert.equal(product.id, 666);
+      assert.equal(product.updated, true);
+      assert.equal(scope.isDone(), true);
+      done();
+    });
+  });
+
 });
 
