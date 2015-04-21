@@ -1,6 +1,6 @@
 var base = require('42-cent-base');
 var util = require('util');
-var Promise = require('bluebird');
+var P = require('bluebird');
 
 function GatewayMock(options) {
   base.BaseGateway.call(this);
@@ -13,10 +13,10 @@ GatewayMock.prototype.submitTransaction = function (order, cc, prospect, other) 
 
   var self = this;
 
-  return GatewayMock.resolveValue ? Promise.resolve(GatewayMock.resolveValue).then(function (val) {
+  return GatewayMock.resolveValue ? P.resolve(GatewayMock.resolveValue).then(function (val) {
     GatewayMock.resolveValue = null;
     return val;
-    }) : Promise.reject(GatewayMock.rejectValue || new Error('mock has no resolve value')).then(function (val) {
+    }) : P.reject(GatewayMock.rejectValue || new Error('mock has no resolve value')).then(function (val) {
     GatewayMock.rejectValue = null;
     return val;
   });
