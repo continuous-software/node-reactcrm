@@ -7,7 +7,7 @@ var react = require('../index.js');
 var schema = require('../lib/schema.js');
 var cent42 = require('42-cent');
 var gwMock = require('./mocks/gateway.js');
-var assign = require('object-assign');
+var Promise = require('bluebird');
 
 describe('ReactCRM', function () {
 
