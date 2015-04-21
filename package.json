@@ -26,7 +26,7 @@
     "object-assign": "^2.0.0",
     "oxr": "^1.0.1",
     "request": "^2.44.0",
-    "skeemas-json-pointer": "^1.0.0",
+    "skeemas-json-pointer": "^1.0.0"
 
   },
   "devDependencies": {
