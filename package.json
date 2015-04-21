@@ -25,12 +25,13 @@
     "money": "^0.2.0",
     "object-assign": "^2.0.0",
     "oxr": "^1.0.1",
-    "request": "^2.44.0"
+    "request": "^2.44.0",
+    "skeemas-json-pointer": "^1.0.0",
+
   },
   "devDependencies": {
     "42-cent-base": "^0.8.0",
     "mocha": "^1.21.4",
-    "nock": "^0.48.0",
-    "skeemas-json-pointer": "^1.0.0"
+    "nock": "^0.48.0"
   }
 }

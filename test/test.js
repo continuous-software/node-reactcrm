@@ -1,13 +1,3 @@
-'use strict';
-
-//var react = require('../index.js');
-//var nock = require('nock');
-//var assert = require('assert');
-//var cent42 = require('42-cent');
-//var gwMock = require('./mocks/gateway.js');
-//var Promise = require('bluebird');
-//var extend = require('util')._extend;
-
 var buildResoure = require('../lib/resourceBuilder.js');
 var assert = require('assert');
 var nock = require('nock');
@@ -15,7 +5,9 @@ var proxy = require('../lib/proxyFunction.js');
 var authenticationProxy = require('../lib/authenticationProxy.js');
 var react = require('../index.js');
 var schema = require('../lib/schema.js');
-
+var cent42 = require('42-cent');
+var gwMock = require('./mocks/gateway.js');
+var assign = require('object-assign');
 
 describe('ReactCRM', function () {
 
@@ -181,7 +173,7 @@ describe('ReactCRM', function () {
 
     it('should create an order', function (done) {
       var api = nock('http://base.com')
-        .post('/orders', {transaction_id: 243, campaign_id:666})
+        .post('/orders', {transaction_id: 243, campaign_id: 666})
         .reply(201, {id: 666, prop: 'value'});
 
       service.addOrder({transaction_id: 243}).then(function (result) {
@@ -193,17 +185,29 @@ describe('ReactCRM', function () {
     });
   });
 
-  xdescribe('create subscription', function () {
+  describe('create subscription', function () {
 
     var service;
 
-    afterEach(function () {
-      nock.cleanAll();
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
+        .then(function (serv) {
+          service = serv;
+          cent42.registerGateway('dummy', gwMock.factory);
+          done();
+        });
     });
 
-    beforeEach(function () {
-      //already authenticated application
-      service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: {id: 666}});
+    afterEach(function () {
+      nock.cleanAll();
     });
 
     it('should add a subscription', function (done) {
@@ -259,34 +263,24 @@ describe('ReactCRM', function () {
       var creditCard = {
         expiration: '12/17',
         cvv: '123',
-        number: '4111 1111 1111 1111'
+        number: '41111 1111 1111 1111'
       };
 
       var offer = {
         id: 777,
         recurringPlan: {
           amount: 99.9
-        }
+        },
+        shippingOfferId: 'blah'
       };
 
       var subscriptionNock = nock('http://base.com')
         .post('/subscriptions', {refTransactionId: 999})
         .reply(201, {id: 111});
 
+
       var orderNock = nock('http://base.com')
-        .post('/orders', {
-          campaign_id: 666,
-          gateway_id: bank.id,
-          prospect_id: 6666,
-          offer_id: offer.id,
-          original_amount: offer.recurringPlan.amount,
-          converted_amount: offer.recurringPlan.amount,
-          ip_address: prospect.source.ip_address,
-          referer: prospect.source.referer,
-          creditcard: extend(creditCard, {token: 'token'}),
-          transaction_id: gatewayResponse.transactionId,
-          billing_status: 'completed'
-        })
+        .post('/orders')
         .reply(201, {id: 999});
 
       service.processSubscription(bank, offer, creditCard, prospect)
@@ -365,19 +359,7 @@ describe('ReactCRM', function () {
         .reply(201, {id: 111});
 
       var orderNock = nock('http://base.com')
-        .post('/orders', {
-          gateway_response: gatewayResponse.message,
-          campaign_id: 666,
-          gateway_id: bank.id,
-          prospect_id: 6666,
-          offer_id: offer.id,
-          original_amount: offer.recurringPlan.amount,
-          converted_amount: offer.recurringPlan.amount,
-          ip_address: prospect.source.ip_address,
-          referer: prospect.source.referer,
-          creditcard: extend(creditCard, {token: 'token'}),
-          billing_status: 'failed'
-        })
+        .post('/orders')
         .reply(201, {id: 999});
 
       service.processSubscription(bank, offer, creditCard, prospect)
@@ -391,18 +373,29 @@ describe('ReactCRM', function () {
     });
   });
 
-  xdescribe('process order', function () {
+  describe('process order', function () {
 
     var service;
 
-    afterEach(function () {
-      nock.cleanAll();
+    beforeEach(function (done) {
+
+      nock('http://base.com')
+        .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
+        .reply(200, {
+          token: 'token',
+          campaign: {id: 666}
+        });
+
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
+        .then(function (serv) {
+          service = serv;
+          cent42.registerGateway('dummy', gwMock.factory);
+          done();
+        });
     });
 
-    beforeEach(function () {
-      //already authenticated application
-      service = new react.ReactCRM('key', 'secret', {endpoint: 'http://base.com', token: 'token', campaign: 666});
-      cent42.registerGateway('dummy', gwMock.factory);
+    afterEach(function () {
+      nock.cleanAll();
     });
 
     it('should process the payment and save the order reference', function (done) {
@@ -412,7 +405,6 @@ describe('ReactCRM', function () {
         type: 'dummy',
         USER: 'blah',
         PASSWORD: 'test'
-
       };
       var offer = {
         id: 111,
@@ -430,6 +422,18 @@ describe('ReactCRM', function () {
           ip_address: 'http://127.0.0.1'
         }
       };
+      var body = {
+        'disclaimer': 'Exchange rates provided by [...]',
+        'license': 'Data collected and blended [...]',
+        'timestamp': Date.now(),
+        'base': 'USD',
+        'rates': {
+          'EUR': 0.92
+        }
+      };
+      var openxr = nock('https://openexchangerates.org')
+        .get('/api/latest.json?app_id=' + service.oxrAppId)
+        .reply(200, body);
       var api = nock('http://base.com')
         .post('/orders')
         .reply(201, {newOrder: 'blah'});
@@ -438,6 +442,7 @@ describe('ReactCRM', function () {
 
       service.processOrder(processor, offer, creditCard, prospect).then(function (result) {
         api.done();
+        openxr.done();
         assert.equal(result.newOrder, 'blah');
         done();
       }, function (err) {
@@ -473,6 +478,18 @@ describe('ReactCRM', function () {
         .post('/orders')
         .reply(201, {billing_status: 'failed'});
 
+      var body = {
+        'disclaimer': 'Exchange rates provided by [...]',
+        'license': 'Data collected and blended [...]',
+        'timestamp': Date.now(),
+        'base': 'USD',
+        'rates': {
+          'EUR': 0.92
+        }
+      };
+      var openxr = nock('https://openexchangerates.org')
+        .get('/api/latest.json?app_id=' + service.oxrAppId)
+        .reply(200, body);
       gwMock.GatewayMock.rejectWith({message: 'some error'});
 
       service.processOrder(processor, offer, creditCard, prospect).then(function (result) {
