@@ -231,10 +231,11 @@ describe('ReactCRM', function () {
       var bank = {
         id: 666,
         type: 'test',
-        credentials: {
+        configuration: {
           USER: 'bob',
           PASSWORD: 'LEPONGE'
-        }
+        },
+        cent42:'test'
       };
 
       var prospect = {
@@ -312,10 +313,11 @@ describe('ReactCRM', function () {
       var bank = {
         id: 666,
         type: 'test',
-        credentials: {
+        configuration: {
           USER: 'bob',
           PASSWORD: 'LEPONGE'
-        }
+        },
+        cent42:'test'
       };
 
       var prospect = {
@@ -402,9 +404,12 @@ describe('ReactCRM', function () {
 
       var processor = {
         id: 666,
-        type: 'dummy',
-        USER: 'blah',
-        PASSWORD: 'test'
+        cent42:'test',
+        configuration:{
+          USER:'blah',
+          PASSWORD:'test'
+        },
+        type: 'dummy'
       };
       var offer = {
         id: 111,
@@ -453,9 +458,12 @@ describe('ReactCRM', function () {
     it('should still resolve the promise when gateway throws an exception', function (done) {
       var processor = {
         id: 666,
-        type: 'dummy',
-        USER: 'blah',
-        PASSWORD: 'test'
+        configuration:{
+          USER:'blah',
+          PASSWORD:'test'
+        },
+        cent42:'test',
+        type: 'dummy'
       };
       var offer = {
         id: 111,
