@@ -9,11 +9,11 @@ module.exports = {
 
 
     var httpGet = P.promisify(request.get);
-    var schemaUrls = process.env.NODE_ENV === 'production' ? 'https://api.reactcrm.com/schema.json' : 'http://localhost:8001/schema.json';
+    var schemaUrls = process.env.NODE_ENV === 'production' ? 'https://api.reactcrm.com/public/schema.json' : 'http://127.0.0.1:8001/public/schema.json';
 
     return (options.schema ? P.resolve(new ReactCRM(apiKey, apiSecret, options)) :
-      httpGet(schemaUrls)
-        .then(function (schema) {
+      httpGet(schemaUrls,{json:true})
+        .spread(function (res, schema) {
           options.schema = schema;
           return new ReactCRM(apiKey, apiSecret, options);
         }))
