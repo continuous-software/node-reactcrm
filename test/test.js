@@ -25,7 +25,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
@@ -73,7 +79,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
@@ -119,7 +131,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
@@ -157,7 +175,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
@@ -195,7 +219,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
@@ -385,7 +415,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
@@ -520,7 +556,13 @@ describe('ReactCRM', function () {
         .post('/authenticateApplication', {apiKey: 'key', apiSecret: 'secret'})
         .reply(200, {
           token: 'token',
-          campaign: {id: 666}
+          campaignId: 666
+        });
+
+      nock('http://base.com')
+        .get('/campaigns/666')
+        .reply(200, {
+          id: 666
         });
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
