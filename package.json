@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "42-cent-base": "^0.8.0",
-    "mocha": "^1.21.4",
+    "mocha": "^2.2.5",
     "nock": "^0.48.0"
   }
 }
