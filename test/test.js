@@ -101,11 +101,57 @@ describe('ReactCRM', function () {
 
     it('should add a prospect', function (done) {
       var prospect = {
-        email: 'bob@eponge.com'
+        email: 'bob@eponge.com',
+        billing: {
+          address: '4 frist road',
+          country: 'US'
+        },
+        shipping : {
+          address: '4 frist road',
+          country: 'US'
+        }
       };
 
       var api = nock('http://base.com').post('/prospects', {
         email: 'bob@eponge.com',
+        addresses:[{
+          address: '4 frist road',
+          country: 'US'
+        }],
+        billing:prospect.billing,
+        shipping:prospect.shipping,
+        campaignId: 666
+      }).reply(200, {
+        email: 'bob@eponge.com',
+        id: 999
+      });
+
+      service.saveProspect(prospect).then(function (result) {
+        assert.equal(result.email, 'bob@eponge.com');
+        assert.equal(result.id, 999);
+        api.done();
+        done();
+      });
+    });
+
+    it('should add a prospect with two addresses', function (done) {
+      var prospect = {
+        email: 'bob@eponge.com',
+        billing: {
+          address: '4 frist road',
+          country: 'US'
+        },
+        shipping : {
+          address: '4 second road',
+          country: 'US'
+        }
+      };
+
+      var api = nock('http://base.com').post('/prospects', {
+        email: 'bob@eponge.com',
+        addresses:[prospect.billing, prospect.shipping],
+        billing:prospect.billing,
+        shipping:prospect.shipping,
         campaignId: 666
       }).reply(200, {
         email: 'bob@eponge.com',
@@ -265,7 +311,7 @@ describe('ReactCRM', function () {
           USER: 'bob',
           PASSWORD: 'LEPONGE'
         },
-        cent42:'test'
+        cent42: 'test'
       };
 
       var prospect = {
@@ -347,7 +393,7 @@ describe('ReactCRM', function () {
           USER: 'bob',
           PASSWORD: 'LEPONGE'
         },
-        cent42:'test'
+        cent42: 'test'
       };
 
       var prospect = {
@@ -440,10 +486,10 @@ describe('ReactCRM', function () {
 
       var processor = {
         id: 666,
-        cent42:'test',
-        configuration:{
-          USER:'blah',
-          PASSWORD:'test'
+        cent42: 'test',
+        configuration: {
+          USER: 'blah',
+          PASSWORD: 'test'
         },
         type: 'dummy'
       };
@@ -461,6 +507,12 @@ describe('ReactCRM', function () {
         source: {
           referer: 'bob',
           ip_address: 'http://127.0.0.1'
+        },
+        billing:{
+          id:'123'
+        },
+        shipping:{
+          id:'1234'
         }
       };
       var body = {
@@ -494,11 +546,11 @@ describe('ReactCRM', function () {
     it('should still resolve the promise when gateway throws an exception', function (done) {
       var processor = {
         id: 666,
-        configuration:{
-          USER:'blah',
-          PASSWORD:'test'
+        configuration: {
+          USER: 'blah',
+          PASSWORD: 'test'
         },
-        cent42:'test',
+        cent42: 'test',
         type: 'dummy'
       };
       var offer = {
@@ -515,6 +567,12 @@ describe('ReactCRM', function () {
         source: {
           referer: 'bob',
           ip_address: 'http://127.0.0.1'
+        },
+        billing:{
+          id:'123'
+        },
+        shipping:{
+          id:'1234'
         }
       };
       //todo better check on body content
