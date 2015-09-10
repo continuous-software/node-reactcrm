@@ -106,7 +106,7 @@ describe('ReactCRM', function () {
           address: '4 frist road',
           country: 'US'
         },
-        shipping : {
+        shipping: {
           address: '4 frist road',
           country: 'US'
         }
@@ -114,12 +114,12 @@ describe('ReactCRM', function () {
 
       var api = nock('http://base.com').post('/prospects', {
         email: 'bob@eponge.com',
-        addresses:[{
+        addresses: [{
           address: '4 frist road',
           country: 'US'
         }],
-        billing:prospect.billing,
-        shipping:prospect.shipping,
+        billing: prospect.billing,
+        shipping: prospect.shipping,
         campaignId: 666
       }).reply(200, {
         email: 'bob@eponge.com',
@@ -141,7 +141,7 @@ describe('ReactCRM', function () {
           address: '4 frist road',
           country: 'US'
         },
-        shipping : {
+        shipping: {
           address: '4 second road',
           country: 'US'
         }
@@ -149,9 +149,9 @@ describe('ReactCRM', function () {
 
       var api = nock('http://base.com').post('/prospects', {
         email: 'bob@eponge.com',
-        addresses:[prospect.billing, prospect.shipping],
-        billing:prospect.billing,
-        shipping:prospect.shipping,
+        addresses: [prospect.billing, prospect.shipping],
+        billing: prospect.billing,
+        shipping: prospect.shipping,
         campaignId: 666
       }).reply(200, {
         email: 'bob@eponge.com',
@@ -508,11 +508,11 @@ describe('ReactCRM', function () {
           referer: 'bob',
           ip_address: 'http://127.0.0.1'
         },
-        billing:{
-          id:'123'
+        billing: {
+          id: '123'
         },
-        shipping:{
-          id:'1234'
+        shipping: {
+          id: '1234'
         }
       };
       var body = {
@@ -568,11 +568,11 @@ describe('ReactCRM', function () {
           referer: 'bob',
           ip_address: 'http://127.0.0.1'
         },
-        billing:{
-          id:'123'
+        billing: {
+          id: '123'
         },
-        shipping:{
-          id:'1234'
+        shipping: {
+          id: '1234'
         }
       };
       //todo better check on body content
@@ -594,13 +594,75 @@ describe('ReactCRM', function () {
         .reply(200, body);
       gwMock.GatewayMock.rejectWith({message: 'some error'});
 
-      service.processOrder(processor, offer, creditCard, prospect).then(function (result) {
-        api.done();
-        assert.equal(result.billing_status, 'failed');
-        done();
-      }, function (err) {
-        console.log(err);
-      });
+      service.processOrder(processor, offer, creditCard, prospect)
+        .then(function (result) {
+          api.done();
+          assert.equal(result.billing_status, 'failed');
+          done();
+        }, function (err) {
+          done(err);
+        });
+    });
+
+    it('should return the not saved react order if anything goes wrong while saving the order', function (done) {
+      var processor = {
+        id: 666,
+        configuration: {
+          USER: 'blah',
+          PASSWORD: 'test'
+        },
+        cent42: 'test',
+        type: 'dummy'
+      };
+      var offer = {
+        id: 111,
+        amount: 199,
+        currency: 'EUR'
+      };
+      var creditCard = {
+        number: '0000 0000 0000 0000',
+        expiration: '12 / 17'
+      };
+      var prospect = {
+        id: 6666,
+        source: {
+          referer: 'bob',
+          ip_address: 'http://127.0.0.1'
+        },
+        billing: {
+          id: '123'
+        },
+        shipping: {
+          id: '1234'
+        }
+      };
+
+      var api = nock('http://base.com')
+        .post('/orders')
+        .reply(500, {message: 'something happened'});
+
+      var body = {
+        'disclaimer': 'Exchange rates provided by [...]',
+        'license': 'Data collected and blended [...]',
+        'timestamp': Date.now(),
+        'base': 'USD',
+        'rates': {
+          'EUR': 0.92
+        }
+      };
+      var openxr = nock('https://openexchangerates.org')
+        .get('/api/latest.json?app_id=' + service.oxrAppId)
+        .reply(200, body);
+      gwMock.GatewayMock.resolveWith({transactionId: 111});
+
+      service.processOrder(processor, offer, creditCard, prospect)
+        .then(function (result) {
+          api.done();
+          assert.equal(result.billing_status, 'completed');
+          done();
+        }, function (err) {
+          done(err);
+        });
     });
 
   });
