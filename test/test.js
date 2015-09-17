@@ -28,11 +28,15 @@ describe('ReactCRM', function () {
           campaignId: 666
         });
 
-      nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+     nock('http://base.com')
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -54,19 +58,26 @@ describe('ReactCRM', function () {
     });
 
     it('should reload the campaign when forcing reload', function (done) {
-      var api = nock('http://base.com').get('/campaigns/666').reply(200, {
-        id: 666,
-        prop: 'new'
-      });
+      var api = nock('http://base.com')
+        .get('/campaigns/666').reply(200, {
+          id: 666,
+          prop: 'new'
+        })
+        .get('/campaigns/666/offers').reply(200, [{id: 'whatever'}])
+        .get('/campaigns/666/trackers').reply(200, [{id: 'whatever'}])
+        .get('/campaigns/666/banks').reply(200, [{id: 'whatever'}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id: 'whatever'}])
+        .get('/campaigns/666/upsales').reply(200, [{id: 'whatever'}]);
 
-      service.getStoreFront(true).then(function (storefront) {
-        assert.equal(storefront.id, 666);
-        assert.equal(service.campaign.id, 666);
-        assert.equal(storefront.prop, 'new');
-        assert.equal(service.campaign.prop, 'new');
-        api.done();
-        done();
-      });
+      service.getStoreFront(true)
+        .then(function (storefront) {
+          assert.equal(storefront.id, 666);
+          assert.equal(service.campaign.id, 666);
+          assert.equal(storefront.prop, 'new');
+          assert.equal(service.campaign.prop, 'new');
+          api.done();
+          done();
+        });
     });
   });
 
@@ -83,10 +94,14 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -181,10 +196,14 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -225,10 +244,14 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -269,15 +292,18 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
-      react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
+      react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
           service = serv;
-          cent42.registerGateway('dummy', gwMock.factory);
           done();
         });
     });
@@ -465,10 +491,14 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
         .then(function (serv) {
@@ -680,10 +710,14 @@ describe('ReactCRM', function () {
         });
 
       nock('http://base.com')
-        .get('/campaigns/666')
-        .reply(200, {
+        .get('/campaigns/666').reply(200, {
           id: 666
-        });
+        })
+        .get('/campaigns/666/offers').reply(200, [{id:1}])
+        .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
+        .get('/campaigns/666/banks').reply(200, [{id:1}])
+        .get('/campaigns/666/trackers').reply(200, [{id:1}])
+        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
