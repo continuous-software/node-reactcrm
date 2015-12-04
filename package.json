@@ -9,7 +9,7 @@
     "url": "https://github.com/continuous-software/node-reactcrm"
   },
   "scripts": {
-    "test": "OXR_APP_ID=9feac8f89fcd492086f8644de9da1974 NODE_ENV='test' node ./node_modules/.bin/mocha ./test/ -R spec -t 35000"
+    "test": "NODE_ENV=test node ./test/test.js | tap-spec"
   },
   "keywords": [
     "crm",
@@ -19,18 +19,13 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "42-cent": "^1.0.0",
     "bluebird": "^2.3.2",
-    "creditcard": "^0.1.1",
-    "money": "^0.2.0",
-    "object-assign": "^2.0.0",
-    "oxr": "^1.0.1",
-    "request": "^2.44.0",
+    "got": "^5.2.0",
     "skeemas-json-pointer": "^1.0.0"
   },
   "devDependencies": {
-    "42-cent-base": "^0.8.0",
-    "mocha": "^2.2.5",
-    "nock": "^0.48.0"
+    "nock": "^0.48.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.2.2"
   }
 }
