@@ -36,7 +36,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -67,7 +68,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/trackers').reply(200, [{id: 'whatever'}])
         .get('/campaigns/666/banks').reply(200, [{id: 'whatever'}])
         .get('/campaigns/666/shippingoffers').reply(200, [{id: 'whatever'}])
-        .get('/campaigns/666/upsales').reply(200, [{id: 'whatever'}]);
+        .get('/campaigns/666/upsales').reply(200, [{id: 'whatever'}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id: 'whatever'}]);
 
       service.getStoreFront(true)
         .then(function (storefront) {
@@ -101,7 +103,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -203,7 +206,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -251,7 +255,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -299,7 +304,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
@@ -498,7 +504,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema, oxrAppId: 'test'})
         .then(function (serv) {
@@ -717,7 +724,8 @@ describe('ReactCRM', function () {
         .get('/campaigns/666/shippingoffers').reply(200, [{id:1}])
         .get('/campaigns/666/banks').reply(200, [{id:1}])
         .get('/campaigns/666/trackers').reply(200, [{id:1}])
-        .get('/campaigns/666/upsales').reply(200, [{id:1}]);
+        .get('/campaigns/666/upsales').reply(200, [{id:1}])
+        .get('/campaigns/666/taxprofiles').reply(200, [{id:1}]);
 
       react.getAuthenticatedApplication('key', 'secret', {schema: schema})
         .then(function (serv) {
