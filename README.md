@@ -6,5 +6,7 @@ DEPRECATED, see [node-funnels](https://github.com/continuous-software/node-funne
 ![node-reactcrm](https://s3-ap-southeast-1.amazonaws.com/uploads-ap.hipchat.com/100533/737628/WCXWWWBUNJMKAAh/react_logo_transparent-04_thumb.png)
 
 ## Installation ##
+- npm install -s reactcrm
 
-    npm install -s reactcrm
+## Generate SDK from API schema.json
+- lowercase rel by default, camelcase if whitespace
